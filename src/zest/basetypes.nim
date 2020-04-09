@@ -24,6 +24,7 @@ type
     MaxHeaderListSize = 6'u16
     Unknown = 7'u16
 
+  # All frames begin with a fixed 9-octet headers
   Headers* = object
     length*: uint32 # 2 ^ 14 ~ 2 ^ 24 - 1
     frameType*: FrameType

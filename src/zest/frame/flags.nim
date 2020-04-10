@@ -11,7 +11,7 @@ const
   FlagHeadersEndStream* = Flag(1)
   FlagHeadersEndHeaders* = Flag(4)
   FlagHeadersPadded* = Flag(8)
-  FlagHeadersPriority* = Flag(20)
+  FlagHeadersPriority* = Flag(32)
 
   # Settings Frame
   FlagSettingsAck* = Flag(1)

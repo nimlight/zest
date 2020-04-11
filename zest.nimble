@@ -13,5 +13,6 @@ srcDir        = "src"
 requires "nim >= 1.2.0"
 
 
+
 task tests, "Run all tests":
-  exec "nim c -r tests/test_all.nim"
+  exec "testament cat /"

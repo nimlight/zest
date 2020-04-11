@@ -1,4 +1,8 @@
+import streams
+
+
 import ./flags, ./bytes
+
 
 type
   FrameError* = object of CatchableError
@@ -29,8 +33,17 @@ type
     MaxHeaderListSize = 6'u16
     Unknown = 7'u16
 
+  # +-----------------------------------------------+
+  # |                 Length (24)                   |
+  # +---------------+---------------+---------------+
+  # |   Type (8)    |   Flags (8)   |
+  # +-+-------------+---------------+-------------------------------+
+  # |R|                 Stream Identifier (31)                      |
+  # +=+=============================================================+
+  # https://tools.ietf.org/html/rfc7540#section-4
+  #
   # All frames begin with a fixed 9-octet headers
-  Headers* = object
+  FrameHeaders* = object
     length*: uint32 # 2 ^ 14 ~ 2 ^ 24 - 1
     frameType*: FrameType
     flag*: Flag
@@ -46,7 +59,7 @@ type
     weight*: uint8
     exclusive*: bool
 
-proc serialize*(headers: Headers): seq[byte] =
+proc serialize*(headers: FrameHeaders): seq[byte] =
   result = newSeqUninitialized[byte](9)
   result[0] = byte(headers.length shr 16)
   result[1] = byte(headers.length shr 8)
@@ -54,3 +67,6 @@ proc serialize*(headers: Headers): seq[byte] =
   result[3] = byte(headers.frameType)
   result[4] = byte(headers.flag)
   result[5 .. 8] = serialize(uint32(headers.streamId))
+
+proc readFrameHeaders*(stream: StringStream): FrameHeaders =
+  discard

@@ -22,3 +22,6 @@ proc serialize*(number: uint16): array[2, byte] =
   # result[0] = byte(number shr 8'u16)
   # result[1] = byte(number)
   result = castNumber(result, number)
+
+template offset*(p: pointer, n: int): pointer = 
+  cast[pointer](cast[ByteAddress](p) + n)

@@ -1,4 +1,4 @@
-import streams, bitops, endians
+import streams, bitops
 
 
 import ./flags, ./bytes
@@ -95,7 +95,7 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
     raise newException(InvalidFrameError, "Invalid frame header")
 
   # read length
-  result.length = uint32(stream.readUint16) shl 8'u32 + uint32(stream.readUint8)
+  result.length = uint32(stream.readBEUint16) shl 8'u32 + uint32(stream.readUint8)
   
   # read frame type
   let frameType = stream.readUint8
@@ -108,9 +108,6 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
   result.flag = Flag(stream.readUint8)
 
   # read streamId
-  var input = stream.readUint32
-  var streamId: uint32
-  when cpuEndian == littleEndian:
-    swapEndian32(streamId.addr, input.addr)
+  var streamId = stream.readBEUint32
   streamId.clearBit(31)
   result.streamId = StreamId(streamId)

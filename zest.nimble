@@ -13,6 +13,5 @@ srcDir        = "src"
 requires "nim >= 1.2.0"
 
 
-
 task tests, "Run all tests":
   exec "testament cat /"

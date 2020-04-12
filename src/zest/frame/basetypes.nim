@@ -68,5 +68,10 @@ proc serialize*(headers: FrameHeaders): seq[byte] =
   result[4] = byte(headers.flag)
   result[5 .. 8] = serialize(uint32(headers.streamId))
 
+template canReadNBytes*(stream: StringStream, length: int): bool =
+  stream.data.len >= stream.getPosition() + length
+
 proc readFrameHeaders*(stream: StringStream): FrameHeaders =
-  discard
+  # read 9 bytes
+  if not canReadNBytes(stream, 9):
+    raise newException(InvalidFrameError, "Invalid frame header")

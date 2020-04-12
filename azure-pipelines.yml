@@ -156,6 +156,7 @@ steps:
       echo "##vso[task.prependpath]$PWD/NimBinaries/nim-${CHANNEL}/bin"
     displayName: 'Set env variable (Posix)'
     condition: ne(variables['Agent.OS'], 'Windows_NT')
+    
   - bash: |
       echo "PATH=${PATH}"
       nimble refresh

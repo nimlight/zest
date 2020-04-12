@@ -1,8 +1,12 @@
 type
+  # An 8-bit field reserved for boolean flags specific to the frame type.
   Flag* = distinct uint8
 
 
 const
+  # Unkown Flags
+  FlagUnknown* = Flag(0)
+
   # Data Frame
   FlagDataEndStream* = Flag(1)
   FlagDataPadded* = Flag(8)
@@ -25,3 +29,6 @@ const
   # PushPromise  
   FlagPushPromiseEndHeaders* = Flag(4)
   FlagPushPromisePadded* = Flag(8)
+
+
+proc `==`*(self, other: Flag): bool {.borrow.}

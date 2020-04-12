@@ -1,6 +1,6 @@
 discard """
   cmd:      "nim c -r --styleCheck:hint --panics:on $options $file"
-  matrix:   "-d:danger; -d:release"
+  matrix:   "-d:release"
   targets:  "c cpp"
   nimout:   ""
   action:   "run"

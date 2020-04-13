@@ -1,11 +1,11 @@
-import options
-import ./errorcodes, ./basetypes
+import options, streams
+import ./errorcodes, ./flags, ./basetypes
 
-export errorcodes, basetypes, options
+export errorcodes, flags, basetypes, options, streams
 
 const
-  FrameMinLen* = 16384 # 2 ^ 14
-  FrameMaxAllowedLen* = 16777215 # 2 ^ 24 - 1 
+  FrameDefaultMaxLen* = 16384 # 2 ^ 14
+  FrameAllowedMaxLen* = 16777215 # 2 ^ 24 - 1 
 
 
 type

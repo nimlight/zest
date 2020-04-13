@@ -1,7 +1,7 @@
 discard """
   cmd:      "nim c -r --styleCheck:hint --panics:on $options $file"
-  matrix:   "--gc:arc; --gc:refc"
-  targets:  "c"
+  matrix:   "--gc:arc"
+  targets:  "c cpp"
   nimout:   ""
   action:   "run"
   exitcode: 0
@@ -34,6 +34,7 @@ block:
   doAssert readed.flag == flag
   doAssert readed.streamId == streamId
   strm.close()
+
 
 # test "length"
 block:
@@ -125,6 +126,7 @@ block:
     doAssert readed.streamId == streamId
     strm.close()
 
+
 # test "frameType"
 block:
   block:
@@ -192,6 +194,7 @@ block:
     doAssert readed.flag == flag
     doAssert readed.streamId == streamId
     strm.close()
+
 
 # test "flag"
 block:
@@ -354,6 +357,7 @@ block:
     doAssert readed.flag == flag
     doAssert readed.streamId == streamId
     strm.close()
+
 
 # test streamId
 block:

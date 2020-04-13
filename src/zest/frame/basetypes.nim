@@ -1,17 +1,18 @@
 import streams, bitops
 
 
-import ./flags, ./bytes
+import ./flags, ./bytes, ./errorcodes
 
 
 export flags, bytes
 
 
 type
-  FrameError* = object of CatchableError
-  InvalidPaddingError* = object of FrameError
-  UnknownFrameError* = object of FrameError
-  InvalidFrameError* = object of FrameError
+  FrameError* = ref object of CatchableError
+  InvalidPaddingError* = ref object of FrameError
+  UnknownFrameError* = ref object of FrameError
+  InvalidFrameError* = ref object of FrameError
+    errorCode: ErrorCode
 
   StreamId* = distinct uint32
 
@@ -45,18 +46,14 @@ type
   # |R|                 Stream Identifier (31)                      |
   # +=+=============================================================+
   # https://tools.ietf.org/html/rfc7540#section-4
-  #
-  # All frames begin with a fixed 9-octet headers
-  FrameHeaders* = object 
+
+  FrameHeaders* = object ## All frames begin with a fixed 9-octet headers.
     length*: uint32 # 2 ^ 14 ~ 2 ^ 24 - 1
     frameType*: FrameType
     flag*: Flag
     streamId*: StreamId
 
-  # Padding is present if the PADDED flag is set.
-  Padding* = object
-    length*: uint8
-    payload*: seq[byte]
+  Padding* = distinct uint8 ## Padding is present if the PADDED flag is set.
 
   Priority* = object
     streamId*: StreamId
@@ -65,10 +62,8 @@ type
 
 
 proc `==`*(self, other: StreamId): bool {.borrow.}
-
-# proc clearBit*(v: var StreamId, bits: BitsRange[uint32]) {.borrow.}
-
 proc serialize*(streamId: StreamId): array[4, byte] {.borrow.}
+
 
 proc initFrameHeaders*(length: uint32, frameType: FrameType, 
                        flag: Flag, streamId: StreamId): FrameHeaders =
@@ -88,15 +83,15 @@ proc serialize*(headers: FrameHeaders): seq[byte] =
   result[5 .. 8] = serialize(streamId)
 
 # big endian
-# 24-bit 0000 00
 proc readFrameHeaders*(stream: StringStream): FrameHeaders =
   ## Reads the fields of the frame header.
 
   # read 9 bytes
   if not canReadNBytes(stream, 9):
-    raise newException(InvalidFrameError, "Invalid frame header")
+    raise FrameError(msg: "Invalid frame header")
 
   # read length
+  # 24-bit 0000 00
   result.length = uint32(stream.readBEUint16) shl 8'u32 + uint32(stream.readUint8)
   
   # read frame type

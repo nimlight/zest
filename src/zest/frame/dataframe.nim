@@ -54,6 +54,6 @@ proc readDataFrame*(stream: StringStream): DataFrame =
   # read payload
   let length = result.headers.length.int
   if canReadNBytes(stream, length):
-    var arr = newSeq[byte](length)
-    discard stream.readData(arr[0].addr, length)
-    result.payload = arr
+    var payload = newSeq[byte](length)
+    discard stream.readData(payload[0].addr, length)
+    result.payload = payload

@@ -53,6 +53,10 @@ type
     flag*: Flag
     streamId*: StreamId
 
+  # Padding octets that contain no application semantic value.
+  # Padding octets MUST be set to zero when sending. A receiver is
+  # not obligated to verify padding but MAY treat non-zero padding as
+  # a connection error of type PROTOCOL_ERROR.
   Padding* = distinct uint8 ## Padding is present if the PADDED flag is set.
 
   Priority* = object

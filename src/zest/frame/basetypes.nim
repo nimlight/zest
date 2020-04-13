@@ -66,6 +66,10 @@ type
 
 proc `==`*(self, other: StreamId): bool {.borrow.}
 
+# proc clearBit*(v: var StreamId, bits: BitsRange[uint32]) {.borrow.}
+
+proc serialize*(streamId: StreamId): array[4, byte] {.borrow.}
+
 proc initFrameHeaders*(length: uint32, frameType: FrameType, 
                        flag: Flag, streamId: StreamId): FrameHeaders =
   ## Initiates a FrameHeaders.
@@ -79,7 +83,9 @@ proc serialize*(headers: FrameHeaders): seq[byte] =
   result[2] = byte(headers.length)
   result[3] = byte(headers.frameType)
   result[4] = byte(headers.flag)
-  result[5 .. 8] = serialize(uint32(headers.streamId))
+  var streamId = uint32(headers.streamId)
+  streamId.clearBit(31)
+  result[5 .. 8] = serialize(streamId)
 
 # big endian
 # 24-bit 0000 00

@@ -24,6 +24,10 @@ type
     padding*: Option[Padding]
 
 
+proc initDataFrame*(headers: FrameHeaders, payload: seq[byte], padding: Option[Padding]): DataFrame =
+  ## Initiates DataFrame.
+  DataFrame(headers: headers, payload: payload, padding: padding)
+
 proc serialize*(frame: DataFrame): seq[byte] = 
   ## Serializes the fields of the dataFrame.
   if frame.padding.isSome:

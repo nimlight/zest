@@ -1,7 +1,7 @@
 discard """
   cmd:      "nim c -r --styleCheck:hint --panics:on $options $file"
-  matrix:   "-d:release"
-  targets:  "c cpp"
+  matrix:   "--gc:arc; --gc:refc"
+  targets:  "c"
   nimout:   ""
   action:   "run"
   exitcode: 0
@@ -13,7 +13,7 @@ import streams, strformat
 import ../src/zest/frame/basetypes
 
 
-# test frame headers
+# test "frame headers"
 block:
   let 
     length = 16777215'u32
@@ -35,7 +35,7 @@ block:
   doAssert readed.streamId == streamId
   strm.close()
 
-# test length
+# test "length"
 block:
   let 
     length = 257'u32

@@ -31,6 +31,10 @@ template offset*(p: pointer, n: int): pointer =
   ## Gets pointer ``p`` of offset ``n``.
   cast[pointer](cast[ByteAddress](p) + n)
 
+template canReadNBytes*(stream: StringStream, length: Natural): bool =
+  ## Decides whether can read ``length`` bytes.
+  stream.data.len >= stream.getPosition() + length
+
 proc readBEUint64*(strm: Stream): uint64 {.inline.} =
   ## Reads uint64 in big endians order.
   var input = strm.readUint64

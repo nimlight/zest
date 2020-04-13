@@ -81,10 +81,6 @@ proc serialize*(headers: FrameHeaders): seq[byte] =
   result[4] = byte(headers.flag)
   result[5 .. 8] = serialize(uint32(headers.streamId))
 
-template canReadNBytes*(stream: StringStream, length: int): bool =
-  ## Decides whether can read ``length`` bytes.
-  stream.data.len >= stream.getPosition() + length
-
 # big endian
 # 24-bit 0000 00
 proc readFrameHeaders*(stream: StringStream): FrameHeaders =

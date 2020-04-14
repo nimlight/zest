@@ -74,17 +74,19 @@ block:
 # test "padding"
 block:
   let 
-    length = 1'u32
+    length = 10'u32
     frameType = FrameType.Data
     flag = FlagDataPadded
     streamId = StreamId(21474836'u32)
     frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
-    payload = @[1'u8]
+    payload = @[1'u8, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     padding = some(Padding(8))
     dataFrame = initDataFrame(frameHeaders, payload, padding)
     serialize = dataFrame.serialize
 
-  doAssert serialize == [0'u8, 0, 1, 0, 8, 1, 71, 174, 20, 8, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+  doAssert serialize == [0'u8, 0, 10, 0, 8, 1, 71, 174, 20, 8, 1, 2,
+                         3, 4, 5, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0],
+                         fmt"{serialize} != "
 
   var str = fromByteSeq(serialize)
   let 
@@ -95,7 +97,7 @@ block:
   doAssert readed.headers.frameType == frameType
   doAssert readed.headers.flag == flag
   doAssert readed.headers.streamId == streamId
-  doAssert readed.padding.get.int == 8
+  doAssert readed.padding.get == padding.get, fmt"{readed.padding.get.int} != {padding.get.int}"
   doAssert readed.payload == payload
   strm.close()
 
@@ -103,17 +105,17 @@ block:
 # test "pad length is zero"
 block:
   let 
-    length = 3'u32
+    length = 4'u32
     frameType = FrameType.Data
     flag = FlagDataPadded
     streamId = StreamId(21474836'u32)
     frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
-    payload = @[1'u8, 3, 7]
+    payload = @[1'u8, 3, 7, 8]
     padding = some(Padding(0))
     dataFrame = initDataFrame(frameHeaders, payload, padding)
     serialize = dataFrame.serialize
 
-  doAssert serialize == [0'u8, 0, 3, 0, 8, 1, 71, 174, 20, 0, 1, 3, 7]
+  doAssert serialize == [0'u8, 0, 4, 0, 8, 1, 71, 174, 20, 0, 1, 3, 7, 8]
 
   var str = fromByteSeq(serialize)
   let 
@@ -124,6 +126,6 @@ block:
   doAssert readed.headers.frameType == frameType
   doAssert readed.headers.flag == flag
   doAssert readed.headers.streamId == streamId
-  doAssert readed.padding.get.int == 0
+  doAssert readed.padding.get == padding.get
   doAssert readed.payload == payload
   strm.close()

@@ -24,12 +24,18 @@ type
     payload*: seq[byte]
 
 
+# Pad length can be zero or None.
+# If zero, a frame will include pad length field(increased in size by one octet),
+# else won't have this field.
 proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] =
   ## Reads pad length.
   result = none(Padding)
   if headers.flag == FlagDataPadded:
     if canReadNBytes(stream, 1):
-      result = some(stream.readUint8.Padding)
+      let data = stream.readUint8
+      if data != 0 and data >= headers.length:
+        raise newConnectionError(errorCode = ErrorCode.Protocol, msg = "Padding is too large!")
+      result = some(data.Padding)
 
 proc readPayload*(stream: StringStream, headers: FrameHeaders): seq[byte] =
   ## Reads padding.

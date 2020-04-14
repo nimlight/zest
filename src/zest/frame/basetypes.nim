@@ -9,10 +9,13 @@ export flags, bytes
 
 type
   FrameError* = ref object of CatchableError
+  ConnectionError* = ref object of CatchableError
+    errorCode: ErrorCode
+
   InvalidPaddingError* = ref object of FrameError
   UnknownFrameError* = ref object of FrameError
   InvalidFrameError* = ref object of FrameError
-    errorCode: ErrorCode
+    errorCode*: ErrorCode
 
   StreamId* = distinct uint32
 
@@ -67,7 +70,11 @@ type
 
 proc `==`*(self, other: StreamId): bool {.borrow.}
 proc serialize*(streamId: StreamId): array[4, byte] {.borrow.}
+proc `==`*(self, other: Padding): bool {.borrow.}
 
+
+proc newConnectionError*(errorCode: ErrorCode, msg: string): ConnectionError =
+  ConnectionError(errorCode: errorCode, msg: msg)
 
 proc initFrameHeaders*(length: uint32, frameType: FrameType, 
                        flag: Flag, streamId: StreamId): FrameHeaders =

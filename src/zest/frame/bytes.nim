@@ -1,6 +1,17 @@
 import streams, endians
 
 
+proc toByteSeq*(str: string): seq[byte] {.inline.} =
+  ## Converts a string to the corresponding byte sequence.
+  @(str.toOpenArrayByte(0, str.high))
+
+proc fromByteSeq*(sequence: openArray[byte]): string {.inline.} =
+  ## Converts a byte sequence to the corresponding string.
+  let length = sequence.len
+  if length > 0:
+    result = newString(length)
+    copyMem(result.cstring, sequence[0].unsafeAddr, length)
+
 template castNumber(result, number: typed): untyped =
   ## Cast ``number`` to array[byte] in big endians order.
   when cpuEndian == bigEndian:
@@ -8,7 +19,7 @@ template castNumber(result, number: typed): untyped =
   else:
     let 
       reversedArray = cast[type(result)](number)
-      size = reversedArray.len - 1
+      size = reversedArray.high
     for idx in 0 .. size:
       result[idx] = reversedArray[size - idx]
     result

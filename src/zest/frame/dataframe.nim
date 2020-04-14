@@ -46,18 +46,12 @@ proc serialize*(frame: DataFrame): seq[byte] =
 
 proc readDataFrame*(stream: StringStream): DataFrame =
   ## Reads the fields of the dataFrame.
-  
+
   # read frame header
   result.headers = stream.readFrameHeaders
 
   # read pad length
-  result.padding = none(Padding)
-  if result.headers.flag == FlagDataPadded:
-    result.padding = some(stream.readUint8.Padding)
+  result.padding = stream.readPadding(result.headers)
 
   # read payload
-  let length = result.headers.length.int
-  if canReadNBytes(stream, length):
-    var payload = newSeq[byte](length)
-    discard stream.readData(payload[0].addr, length)
-    result.payload = payload
+  result.payload = stream.readPayload(result.headers)

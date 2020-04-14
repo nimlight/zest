@@ -1,6 +1,6 @@
 discard """
   cmd:      "nim c -r --styleCheck:hint --panics:on $options $file"
-  matrix:   "--gc:arc; --gc:refc"
+  matrix:   "--gc:arc; --gc:arc --d:release"
   targets:  "c"
   nimout:   ""
   action:   "run"
@@ -12,6 +12,28 @@ import ../src/zest/frame/bytes
 
 import math, streams
 
+
+# test "toByteSeq" and "fromByteSeq"
+block:
+  block:
+    let 
+      str = "\xFF\xFF\xFF\x00\x08\x01\x47\xAE\x14"
+      bytes = @[255'u8, 255, 255, 0, 8, 1, 71, 174, 20]
+
+    doAssert str.toByteSeq == bytes
+    doAssert bytes.fromByteSeq == str
+    doAssert str.toByteSeq.fromByteSeq == str
+    doAssert bytes.fromByteSeq.toByteSeq == bytes
+
+  block:
+    let
+      str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x01"
+      bytes = [255'u8, 255, 255, 0, 8, 0, 0, 0, 1]
+    
+    doAssert str.toByteSeq == bytes
+    doAssert bytes.fromByteSeq == str
+    doAssert str.toByteSeq.fromByteSeq == str
+    doAssert bytes.fromByteSeq.toByteSeq == bytes
 
 # test "serialize uint64"
 block:

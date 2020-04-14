@@ -1,7 +1,7 @@
 discard """
   cmd:      "nim c -r --styleCheck:hint --panics:on $options $file"
-  matrix:   "--gc:arc"
-  targets:  "c cpp"
+  matrix:   "--gc:arc; --gc:arc --d:release"
+  targets:  "c"
   nimout:   ""
   action:   "run"
   exitcode: 0
@@ -25,7 +25,8 @@ block:
   var serialize = frameHeaders.serialize
   doAssert serialize == @[255'u8, 255, 255, 0, 8, 1, 71, 174, 20]
 
-  var str = "\xFF\xFF\xFF\x00\x08\x01\x47\xAE\x14"
+  # var str = "\xFF\xFF\xFF\x00\x08\x01\x47\xAE\x14"
+  var str = fromByteSeq(serialize)
   let 
     strm = newStringStream(move(str))
     readed = strm.readFrameHeaders
@@ -49,7 +50,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 0, 8, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -71,7 +73,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[0'u8, 0, 0, 0, 8, 0, 0, 0, 1]
 
-    var str = "\x00\x00\x00\x00\x08\x00\x00\x00\x01"
+    # var str = "\x00\x00\x00\x00\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -93,7 +96,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[0'u8, 1, 1, 0, 8, 0, 0, 0, 1]
 
-    var str = "\x00\x01\x01\x00\x08\x00\x00\x00\x01"
+    # var str = "\x00\x01\x01\x00\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -115,7 +119,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[0'u8, 0, 233, 0, 8, 0, 0, 0, 1]
 
-    var str = "\x00\x00\xE9\x00\x08\x00\x00\x00\x01"
+    # var str = "\x00\x00\xE9\x00\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -140,7 +145,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 1, 8, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x01\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x01\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -162,7 +168,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 5, 8, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x05\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x05\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -184,7 +191,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 10, 8, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x0A\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x0A\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -209,7 +217,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 0, 8, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -232,7 +241,8 @@ block:
     
     doAssert serialize == @[255'u8, 255, 255, 0, 1, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x00\x01\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x00\x01\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -255,7 +265,8 @@ block:
     
     doAssert serialize == @[255'u8, 255, 255, 1, 1, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x01\x01\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x01\x01\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -278,7 +289,8 @@ block:
     
     doAssert serialize == @[255'u8, 255, 255, 1, 4, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x01\x04\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x01\x04\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -301,7 +313,8 @@ block:
     
     doAssert serialize == @[255'u8, 255, 255, 1, 8, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x01\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x01\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -324,7 +337,8 @@ block:
     
     doAssert serialize == @[255'u8, 255, 255, 1, 32, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x01\x20\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x01\x20\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -347,7 +361,8 @@ block:
     
     doAssert serialize == @[255'u8, 255, 255, 0, 0, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x00\x00\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x00\x00\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -372,7 +387,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 0, 8, 0, 0, 0, 0]
 
-    var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x00"
+    # var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x00"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -393,7 +409,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 0, 8, 0, 0, 0, 1]
 
-    var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\x00\x08\x00\x00\x00\x01"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -414,7 +431,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 0, 8, 127, 255, 255, 255]
 
-    var str = "\xFF\xFF\xFF\x00\x08\x7F\xFF\xFF\xFF"
+    # var str = "\xFF\xFF\xFF\x00\x08\x7F\xFF\xFF\xFF"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders
@@ -435,7 +453,8 @@ block:
     var serialize = frameHeaders.serialize
     doAssert serialize == @[255'u8, 255, 255, 0, 8, 127, 255, 255, 255]
 
-    var str = "\xFF\xFF\xFF\x00\x08\x7F\xFF\xFF\xFF"
+    # var str = "\xFF\xFF\xFF\x00\x08\x7F\xFF\xFF\xFF"
+    var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
       readed = strm.readFrameHeaders

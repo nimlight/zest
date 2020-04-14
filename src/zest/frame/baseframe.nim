@@ -22,3 +22,19 @@ type
   Frame* = object of RootObj
     headers*: FrameHeaders
     payload*: seq[byte]
+
+
+proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] =
+  ## Reads pad length.
+  result = none(Padding)
+  if headers.flag == FlagDataPadded:
+    if canReadNBytes(stream, 1):
+      result = some(stream.readUint8.Padding)
+
+proc readPayload*(stream: StringStream, headers: FrameHeaders): seq[byte] =
+  ## Reads padding.
+  let length = headers.length.int
+  if canReadNBytes(stream, length):
+    if length > 0:
+      result = newSeq[byte](length)
+      discard stream.readData(result[0].addr, length)

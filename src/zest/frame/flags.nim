@@ -4,17 +4,18 @@ type
 
 
 const
-  # Unkown Flags
-  FlagUnknown* = Flag(0)
+  # General flag
+  FlagEndStream* = Flag(1)
+  FlagPadded* = Flag(8)
 
   # Data Frame
-  FlagDataEndStream* = Flag(1)
-  FlagDataPadded* = Flag(8)
+  # FlagEndStream* = Flag(1)
+  # FlagPadded* = Flag(8)
 
   # Headers Frame
-  FlagHeadersEndStream* = Flag(1)
+  # FlagHeadersEndStream* = Flag(1)
   FlagHeadersEndHeaders* = Flag(4)
-  FlagHeadersPadded* = Flag(8)
+  # FlagHeadersPadded* = Flag(8)
   FlagHeadersPriority* = Flag(32)
 
   # Settings Frame
@@ -32,3 +33,9 @@ const
 
 
 proc `==`*(self, other: Flag): bool {.borrow.}
+proc `and`*(self, other: Flag): Flag {.borrow.}
+proc `or`*(self, other: Flag): Flag {.borrow.}
+
+
+template contains*(self, other: Flag): bool =
+  (self and other) == other

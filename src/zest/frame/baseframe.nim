@@ -30,7 +30,7 @@ type
 proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] =
   ## Reads pad length.
   result = none(Padding)
-  if headers.flag == FlagDataPadded:
+  if headers.flag.contains(FlagPadded):
     if canReadNBytes(stream, 1):
       let data = stream.readUint8
       if data != 0 and data >= headers.length:
@@ -38,7 +38,7 @@ proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] 
       result = some(data.Padding)
 
 proc readPayload*(stream: StringStream, headers: FrameHeaders): seq[byte] =
-  ## Reads padding.
+  ## Reads payload.
   let length = headers.length.int
   if canReadNBytes(stream, length):
     if length > 0:

@@ -30,7 +30,6 @@ type
     GoAway = 7'u8
     WindowUpdate = 8'u8
     Continuation = 9'u8
-    Unknown = 10'u8
 
   Settings* {.pure.} = enum
     HeaderTableSize = 1'u16
@@ -39,7 +38,7 @@ type
     InitialWindowSize = 4'u16
     MaxFrameSize = 5'u16
     MaxHeaderListSize = 6'u16
-    Unknown = 7'u16
+
 
   # +-----------------------------------------------+
   # |                 Length (24)                   |
@@ -108,7 +107,7 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
   # read frame type
   let frameType = stream.readUint8
   if frameType >= 10'u8:
-    result.frameType = FrameType.Unknown
+    raise UnknownFrameError(msg: "Unknown frame!")
   else:
     result.frameType = FrameType(frameType)
 

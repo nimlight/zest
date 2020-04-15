@@ -19,14 +19,32 @@ type
     ## octets associated with a stream.  One or more DATA frames are used,
     ## for instance, to carry HTTP request or response payloads.
     # Allowed flags:
-    # FlagDataEndStream = 0x1
-    # FlagDataPadded = 0x8
+    # FlagEndStream = 0x1
+    # FlagPadded = 0x8
     padding*: Option[Padding]
 
 
-proc initDataFrame*(headers: FrameHeaders, payload: seq[byte], padding: Option[Padding]): DataFrame =
+proc initDataFrame*(streamId: StreamId, payload: seq[byte],
+                    padding: Option[Padding], endStream = false): DataFrame {.inline.}=
   ## Initiates DataFrame.
+  var flag: Flag
+  if padding.isSome:
+    flag = FlagPadded
+
+  if endStream:
+    flag = flag or FlagEndStream
+
+  let headers = initFrameHeaders(length = uint32(payload.len), frameType = FrameType.Data,
+                                 flag = flag, streamId = streamId)
   DataFrame(headers: headers, payload: payload, padding: padding)
+
+proc isStreamEnded*(frame: DataFrame): bool {.inline.} =
+  ## Contains FlagEndStream flag.
+  frame.headers.flag.contains(FlagEndStream)
+
+proc isPadded*(frame: DataFrame): bool {.inline.} =
+  ## Contains FlagPadded flag.
+  frame.headers.flag.contains(FlagPadded)
 
 proc serialize*(frame: DataFrame): seq[byte] = 
   ## Serializes the fields of the dataFrame.

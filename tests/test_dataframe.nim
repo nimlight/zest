@@ -18,12 +18,11 @@ block:
   let 
     length = 1'u32
     frameType = FrameType.Data
-    flag = FlagDataEndStream
+    flag = FlagEndStream
     streamId = StreamId(21474836'u32)
-    frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
     payload = @[1'u8]
     padding = none(Padding)
-    dataFrame = initDataFrame(frameHeaders, payload, padding)
+    dataFrame = initDataFrame(streamId, payload, padding, true)
     serialize = dataFrame.serialize
 
   doAssert serialize == [0'u8, 0, 1, 0, 1, 1, 71, 174, 20, 1]
@@ -47,12 +46,11 @@ block:
   let 
     length = 0'u32
     frameType = FrameType.Data
-    flag = FlagDataEndStream
+    flag = FlagEndStream
     streamId = StreamId(21474836'u32)
-    frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
     payload: seq[byte] = @[]
     padding = none(Padding)
-    dataFrame = initDataFrame(frameHeaders, payload, padding)
+    dataFrame = initDataFrame(streamId, payload, padding, true)
     serialize = dataFrame.serialize
 
   doAssert serialize == [0'u8, 0, 0, 0, 1, 1, 71, 174, 20]
@@ -76,12 +74,11 @@ block:
   let 
     length = 10'u32
     frameType = FrameType.Data
-    flag = FlagDataPadded
+    flag = FlagPadded
     streamId = StreamId(21474836'u32)
-    frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
     payload = @[1'u8, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     padding = some(Padding(8))
-    dataFrame = initDataFrame(frameHeaders, payload, padding)
+    dataFrame = initDataFrame(streamId, payload, padding)
     serialize = dataFrame.serialize
 
   doAssert serialize == [0'u8, 0, 10, 0, 8, 1, 71, 174, 20, 8, 1, 2,
@@ -107,12 +104,11 @@ block:
   let 
     length = 4'u32
     frameType = FrameType.Data
-    flag = FlagDataPadded
+    flag = FlagPadded
     streamId = StreamId(21474836'u32)
-    frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
     payload = @[1'u8, 3, 7, 8]
     padding = some(Padding(0))
-    dataFrame = initDataFrame(frameHeaders, payload, padding)
+    dataFrame = initDataFrame(streamId, payload, padding)
     serialize = dataFrame.serialize
 
   doAssert serialize == [0'u8, 0, 4, 0, 8, 1, 71, 174, 20, 0, 1, 3, 7, 8]

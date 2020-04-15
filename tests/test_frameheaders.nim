@@ -18,7 +18,7 @@ block:
   let 
     length = 16777215'u32
     frameType = FrameType.Data
-    flag = FlagDataPadded
+    flag = FlagPadded
     streamId = StreamId(21474836'u32)
   let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -43,7 +43,7 @@ block:
     let 
       length = high(uint32) shr 8'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -66,7 +66,7 @@ block:
     let 
       length = 0'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -89,7 +89,7 @@ block:
     let 
       length = 257'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -112,7 +112,7 @@ block:
     let 
       length = 233'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -138,7 +138,7 @@ block:
     let 
       length = high(uint32) shr 8'u32
       frameType = FrameType.Headers
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -161,7 +161,7 @@ block:
     let 
       length = high(uint32) shr 8'u32
       frameType = FrameType.PushPromise
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -183,15 +183,15 @@ block:
   block:
     let 
       length = high(uint32) shr 8'u32
-      frameType = FrameType.Unknown
-      flag = FlagDataPadded
+      frameType = FrameType(9)
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
     var serialize = frameHeaders.serialize
-    doAssert serialize == @[255'u8, 255, 255, 10, 8, 0, 0, 0, 1]
+    doAssert serialize == @[255'u8, 255, 255, 9, 8, 0, 0, 0, 1]
 
-    # var str = "\xFF\xFF\xFF\x0A\x08\x00\x00\x00\x01"
+    # var str = "\xFF\xFF\xFF\xFF\x08\x00\x00\x00\x01"
     var str = fromByteSeq(serialize)
     let 
       strm = newStringStream(move(str))
@@ -210,7 +210,7 @@ block:
     let 
       length = high(uint32) shr 8'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -233,7 +233,7 @@ block:
     let 
       length = high(uint32) shr 8'u32
       frameType = FrameType.Data
-      flag = FlagDataEndStream
+      flag = FlagEndStream
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -257,7 +257,7 @@ block:
     let 
       length = high(uint32) shr 8'u32
       frameType = FrameType.Headers
-      flag = FlagHeadersEndStream
+      flag = FlagEndStream
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -305,7 +305,7 @@ block:
     let 
       length = high(uint32) shr 8'u32
       frameType = FrameType.Headers
-      flag = FlagHeadersPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -380,7 +380,7 @@ block:
     let 
       length = 16777215'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(0'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -402,7 +402,7 @@ block:
     let 
       length = 16777215'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(1'u32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -424,7 +424,7 @@ block:
     let 
       length = 16777215'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = StreamId(high(uint32) shr 1)
     let frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
 
@@ -446,7 +446,7 @@ block:
     let 
       length = 16777215'u32
       frameType = FrameType.Data
-      flag = FlagDataPadded
+      flag = FlagPadded
       streamId = high(uint32)
     let frameHeaders = initFrameHeaders(length, frameType, flag, StreamId(streamId))
 

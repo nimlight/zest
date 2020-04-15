@@ -18,7 +18,6 @@ block:
   let 
     length = 1'u32
     frameType = FrameType.Data
-    flag = FlagEndStream
     streamId = StreamId(21474836'u32)
     payload = @[1'u8]
     padding = none(Padding)
@@ -34,7 +33,8 @@ block:
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
-  doAssert readed.headers.flag == flag
+  doAssert not readed.isPadded
+  doAssert readed.isStreamEnded
   doAssert readed.headers.streamId == streamId
   doAssert readed.padding.isNone
   doAssert readed.payload == payload
@@ -46,7 +46,6 @@ block:
   let 
     length = 0'u32
     frameType = FrameType.Data
-    flag = FlagEndStream
     streamId = StreamId(21474836'u32)
     payload: seq[byte] = @[]
     padding = none(Padding)
@@ -62,7 +61,8 @@ block:
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
-  doAssert readed.headers.flag == flag
+  doAssert not readed.isPadded
+  doAssert readed.isStreamEnded
   doAssert readed.headers.streamId == streamId
   doAssert readed.padding.isNone
   doAssert readed.payload == payload
@@ -74,7 +74,6 @@ block:
   let 
     length = 10'u32
     frameType = FrameType.Data
-    flag = FlagPadded
     streamId = StreamId(21474836'u32)
     payload = @[1'u8, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     padding = some(Padding(8))
@@ -92,7 +91,8 @@ block:
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
-  doAssert readed.headers.flag == flag
+  doAssert not readed.isStreamEnded
+  doAssert readed.isPadded
   doAssert readed.headers.streamId == streamId
   doAssert readed.padding.get == padding.get, fmt"{readed.padding.get.int} != {padding.get.int}"
   doAssert readed.payload == payload
@@ -104,7 +104,6 @@ block:
   let 
     length = 4'u32
     frameType = FrameType.Data
-    flag = FlagPadded
     streamId = StreamId(21474836'u32)
     payload = @[1'u8, 3, 7, 8]
     padding = some(Padding(0))
@@ -120,7 +119,36 @@ block:
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
-  doAssert readed.headers.flag == flag
+  doAssert readed.isPadded
+  doAssert not readed.isStreamEnded
+  doAssert readed.headers.streamId == streamId
+  doAssert readed.padding.get == padding.get
+  doAssert readed.payload == payload
+  strm.close()
+
+
+# test "flags contain padded and endStream"
+block:
+  let 
+    length = 4'u32
+    frameType = FrameType.Data
+    streamId = StreamId(21474836'u32)
+    payload = @[1'u8, 3, 7, 8]
+    padding = some(Padding(0))
+    dataFrame = initDataFrame(streamId, payload, padding, endStream = true)
+    serialize = dataFrame.serialize
+
+  doAssert serialize == [0'u8, 0, 4, 0, 9, 1, 71, 174, 20, 0, 1, 3, 7, 8]
+
+  var str = fromByteSeq(serialize)
+  let 
+    strm = newStringStream(move(str))
+    readed = strm.readDataFrame
+
+  doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
+  doAssert readed.headers.frameType == frameType
+  doAssert readed.isPadded
+  doAssert readed.isStreamEnded
   doAssert readed.headers.streamId == streamId
   doAssert readed.padding.get == padding.get
   doAssert readed.payload == payload

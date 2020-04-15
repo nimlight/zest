@@ -21,26 +21,14 @@ type
   # https://tools.ietf.org/html/rfc7540#section-4
   Frame* = object of RootObj
     headers*: FrameHeaders
-    payload*: seq[byte]
 
 
 # Pad length can be zero or None.
 # If zero, a frame will include pad length field(increased in size by one octet),
 # else won't have this field.
-proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] =
+proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] {.inline.} =
   ## Reads pad length.
   result = none(Padding)
   if headers.flag.contains(FlagPadded):
     if canReadNBytes(stream, 1):
-      let data = stream.readUint8
-      if data != 0 and data >= headers.length:
-        raise newConnectionError(errorCode = ErrorCode.Protocol, msg = "Padding is too large!")
-      result = some(data.Padding)
-
-proc readPayload*(stream: StringStream, headers: FrameHeaders): seq[byte] =
-  ## Reads payload.
-  let length = headers.length.int
-  if canReadNBytes(stream, length):
-    if length > 0:
-      result = newSeq[byte](length)
-      discard stream.readData(result[0].addr, length)
+      result = some(stream.readUint8.Padding)

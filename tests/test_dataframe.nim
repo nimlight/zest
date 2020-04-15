@@ -1,6 +1,6 @@
 discard """
   cmd:      "nim c -r --styleCheck:hint --panics:on $options $file"
-  matrix:   "--gc:arc; --gc:arc --d:release"
+  matrix:   "--gc:arc; --gc:refc"
   targets:  "c"
   nimout:   ""
   action:   "run"
@@ -12,6 +12,94 @@ import streams, strformat
 
 import ../src/zest/frame/baseframe
 import ../src/zest/frame/dataframe
+
+
+# # test "read payload"
+# block:
+#   # have no payload
+#   block:
+#     let 
+#       length = 0'u32
+#       frameType = FrameType.Data
+#       flag = FlagEndStream
+#       streamId = StreamId(21474836'u32)
+#       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
+#       serialize = [0'u8, 0, 0, 0, 1, 1, 71, 174, 20]
+
+#     var str = fromByteSeq(serialize)
+#     let 
+#       strm = newStringStream(move(str))
+
+#     # frameheaders of nine octets
+#     discard strm.readFrameHeaders
+#     discard strm.readPadding(frameHeaders)
+
+#     doAssert strm.readPayload(frameHeaders) == []
+#     strm.close()
+
+#   # have payload of one octet
+#   block:
+#     let 
+#       length = 1'u32
+#       frameType = FrameType.Data
+#       flag = FlagPadded
+#       streamId = StreamId(21474836'u32)
+#       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
+#       serialize = [0'u8, 0, 1, 0, 8, 1, 71, 174, 20, 0, 99]
+
+#     var str = fromByteSeq(serialize)
+#     let 
+#       strm = newStringStream(move(str))
+
+#     # frameheaders of nine octets
+#     discard strm.readFrameHeaders
+#     discard strm.readPadding(frameHeaders)
+
+#     doAssert strm.readPayload(frameHeaders) == [99'u8]
+#     strm.close()
+
+#   # have payload of six octets
+#   block:
+#     let 
+#       length = 6'u32
+#       frameType = FrameType.Data
+#       flag = FlagPadded
+#       streamId = StreamId(21474836'u32)
+#       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
+#       serialize = [0'u8, 0, 6, 0, 8, 1, 71, 174, 20, 1, 99, 99, 99, 99, 99, 99, 0]
+
+#     var str = fromByteSeq(serialize)
+#     let 
+#       strm = newStringStream(move(str))
+
+#     # frameheaders of nine octets
+#     discard strm.readFrameHeaders
+#     discard strm.readPadding(frameHeaders)
+
+#     doAssert strm.readPayload(frameHeaders) == [99'u8, 99, 99, 99, 99, 99]
+#     strm.close()
+
+
+# # padding is too large
+# block:
+#   let 
+#     length = 2'u32
+#     frameType = FrameType.Data
+#     flag = FlagPadded
+#     streamId = StreamId(21474836'u32)
+#     frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
+#     serialize = [0'u8, 0, 2, 0, 8, 1, 71, 174, 20, 4, 99, 99, 0, 0, 0, 0]
+
+#   var str = fromByteSeq(serialize)
+#   let 
+#     strm = newStringStream(move(str))
+
+#   # frameheaders of nine octets
+#   discard strm.readFrameHeaders
+
+#   doAssertRaises(ConnectionError):
+#     discard strm.readPadding(frameHeaders)
+#   strm.close()
 
 
 block:
@@ -72,7 +160,7 @@ block:
 # test "padding"
 block:
   let 
-    length = 10'u32
+    length = 19'u32
     frameType = FrameType.Data
     streamId = StreamId(21474836'u32)
     payload = @[1'u8, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -80,7 +168,7 @@ block:
     dataFrame = initDataFrame(streamId, payload, padding)
     serialize = dataFrame.serialize
 
-  doAssert serialize == [0'u8, 0, 10, 0, 8, 1, 71, 174, 20, 8, 1, 2,
+  doAssert serialize == [0'u8, 0, 19, 0, 8, 1, 71, 174, 20, 8, 1, 2,
                          3, 4, 5, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0],
                          fmt"{serialize} != "
 
@@ -102,7 +190,7 @@ block:
 # test "pad length is zero"
 block:
   let 
-    length = 4'u32
+    length = 5'u32
     frameType = FrameType.Data
     streamId = StreamId(21474836'u32)
     payload = @[1'u8, 3, 7, 8]
@@ -110,7 +198,7 @@ block:
     dataFrame = initDataFrame(streamId, payload, padding)
     serialize = dataFrame.serialize
 
-  doAssert serialize == [0'u8, 0, 4, 0, 8, 1, 71, 174, 20, 0, 1, 3, 7, 8]
+  doAssert serialize == [0'u8, 0, 5, 0, 8, 1, 71, 174, 20, 0, 1, 3, 7, 8]
 
   var str = fromByteSeq(serialize)
   let 
@@ -130,7 +218,7 @@ block:
 # test "flags contain padded and endStream"
 block:
   let 
-    length = 4'u32
+    length = 5'u32
     frameType = FrameType.Data
     streamId = StreamId(21474836'u32)
     payload = @[1'u8, 3, 7, 8]
@@ -138,7 +226,7 @@ block:
     dataFrame = initDataFrame(streamId, payload, padding, endStream = true)
     serialize = dataFrame.serialize
 
-  doAssert serialize == [0'u8, 0, 4, 0, 9, 1, 71, 174, 20, 0, 1, 3, 7, 8]
+  doAssert serialize == [0'u8, 0, 5, 0, 9, 1, 71, 174, 20, 0, 1, 3, 7, 8]
 
   var str = fromByteSeq(serialize)
   let 

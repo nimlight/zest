@@ -22,19 +22,22 @@ type
     # FlagEndStream = 0x1
     # FlagPadded = 0x8
     padding*: Option[Padding]
+    payload*: seq[byte]
 
 
 proc initDataFrame*(streamId: StreamId, payload: seq[byte],
                     padding: Option[Padding], endStream = false): DataFrame {.inline.}=
   ## Initiates DataFrame.
   var flag: Flag
+  var length = payload.len
   if padding.isSome:
     flag = FlagPadded
+    inc(length, padding.get.int + 1)
 
   if endStream:
     flag = flag or FlagEndStream
 
-  let headers = initFrameHeaders(length = uint32(payload.len), frameType = FrameType.Data,
+  let headers = initFrameHeaders(length = uint32(length), frameType = FrameType.Data,
                                  flag = flag, streamId = streamId)
   DataFrame(headers: headers, payload: payload, padding: padding)
 
@@ -46,19 +49,35 @@ proc isPadded*(frame: DataFrame): bool {.inline.} =
   ## Contains FlagPadded flag.
   frame.headers.flag.contains(FlagPadded)
 
+proc readPayload*(stream: StringStream, length: uint32, padLength: Option[Padding]): seq[byte] {.inline.} =
+  ## Reads payload.
+  var payloadLen: int
+  if padLength.isSome:
+    let size = int(padLength.get)
+    payloadLen = int(length) - size - 1
+    if size >= payloadLen:
+      raise newConnectionError(errorCode = ErrorCode.Protocol, msg = "Padding is too large!")
+  else:
+    payloadLen = int(length)
+
+  if canReadNBytes(stream, payloadLen):
+    if payloadLen > 0:
+      result = newSeq[byte](payloadLen)
+      discard stream.readData(result[0].addr, payloadLen)
+
 proc serialize*(frame: DataFrame): seq[byte] = 
   ## Serializes the fields of the dataFrame.
+
+  result = newSeqOfCap[byte](9 + frame.headers.length)
   if frame.padding.isSome:
-    let length = frame.padding.get()
+    let padLength = frame.padding.get()
     # headers + pad length + payload + Padding
-    result = newSeqOfCap[byte](9 + 1 + frame.payload.len + length.int)
     result.add frame.headers.serialize
-    result.add byte(length)
+    result.add byte(padLength)
     result.add frame.payload
-    result.add newSeq[byte](length.int)
+    result.add newSeq[byte](padLength.int)
   else:
     # headers + payload
-    result = newSeqOfCap[byte](9 + frame.payload.len)
     result.add frame.headers.serialize
     result.add frame.payload
 
@@ -72,4 +91,4 @@ proc readDataFrame*(stream: StringStream): DataFrame =
   result.padding = stream.readPadding(result.headers)
 
   # read payload
-  result.payload = stream.readPayload(result.headers)
+  result.payload = stream.readPayload(result.headers.length, result.padding)

@@ -38,4 +38,5 @@ proc `or`*(self, other: Flag): Flag {.borrow.}
 
 
 template contains*(self, other: Flag): bool =
+  ## Decides whether ``self`` flags collection contains ``other`` flag.
   (self and other) == other

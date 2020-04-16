@@ -26,12 +26,14 @@ type
 
 
 proc initDataFrame*(streamId: StreamId, payload: seq[byte],
-                    padding: Option[Padding], endStream = false): DataFrame {.inline.}=
+                    padding: Option[Padding], endStream = false): DataFrame {.inline.} =
   ## Initiates DataFrame.
-  var flag: Flag
-  var length = payload.len
+  var 
+    flag: Flag
+    length = payload.len
+
   if padding.isSome:
-    flag = FlagDataPadded
+    flag = flag or FlagDataPadded
     inc(length, padding.get.int + 1)
 
   if endStream:
@@ -60,26 +62,21 @@ proc readPayload*(stream: StringStream, length: uint32, padLength: Option[Paddin
   else:
     payloadLen = int(length)
 
-  if canReadNBytes(stream, payloadLen):
-    if payloadLen > 0:
-      result = newSeq[byte](payloadLen)
-      discard stream.readData(result[0].addr, payloadLen)
+  if payloadLen > 0 and canReadNBytes(stream, payloadLen):
+    result = newSeq[byte](payloadLen)
+    discard stream.readData(result[0].addr, payloadLen)
 
 proc serialize*(frame: DataFrame): seq[byte] {.inline.} = 
   ## Serializes the fields of the dataFrame.
 
-  result = newSeqOfCap[byte](9 + frame.headers.length)
+  let length = 9 + frame.headers.length
+  result = newSeqOfCap[byte](length)
+  result.add frame.headers.serialize
+  # headers + pad length(?) + payload + Padding(?)
   if frame.padding.isSome:
-    let padLength = frame.padding.get()
-    # headers + pad length + payload + Padding
-    result.add frame.headers.serialize
-    result.add byte(padLength)
-    result.add frame.payload
-    result.add newSeq[byte](padLength.int)
-  else:
-    # headers + payload
-    result.add frame.headers.serialize
-    result.add frame.payload
+    result.add byte(frame.padding.get)
+  result.add frame.payload
+  result.setLen(length)
 
 proc readDataFrame*(stream: StringStream): DataFrame {.inline.} =
   ## Reads the fields of the dataFrame.

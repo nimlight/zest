@@ -72,11 +72,16 @@ proc serialize*(streamId: StreamId): array[4, byte] {.borrow.}
 proc `==`*(self, other: Padding): bool {.borrow.}
 
 
-proc newConnectionError*(errorCode: ErrorCode, msg: string): ConnectionError =
+proc newConnectionError*(errorCode: ErrorCode, msg: string): ConnectionError {.inline.} =
+  ## new a ConnectionError.
   ConnectionError(errorCode: errorCode, msg: msg)
 
+proc initPriority*(streamId: StreamId, weight: uint8, exclusive: bool): Priority {.inline.} =
+  ## Initiates a Priority.
+  Priority(streamId: streamId, weight: weight, exclusive: exclusive)
+
 proc initFrameHeaders*(length: uint32, frameType: FrameType, 
-                       flag: Flag, streamId: StreamId): FrameHeaders =
+                       flag: Flag, streamId: StreamId): FrameHeaders {.inline.} =
   ## Initiates a FrameHeaders.
   FrameHeaders(length: length, frameType: frameType, flag: flag, streamId: streamId)
 

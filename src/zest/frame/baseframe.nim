@@ -1,7 +1,9 @@
 import options, streams, bitops
 import ./errorcodes, ./flags, ./basetypes
 
+
 export errorcodes, flags, basetypes, options, streams, bitops
+
 
 const
   FrameDefaultMaxLen* = 16384 # 2 ^ 14
@@ -51,7 +53,7 @@ proc readPriority*(stream: StringStream, headers: FrameHeaders): Option[Priority
     if headers.flag.contains(FlagHeadersPriority) and canReadNBytes(stream, 5):
       var 
         priority: Priority
-        streamId = stream.readUint32
+        streamId = stream.readBEUint32
       priority.exclusive = streamId.testBit(31)
       streamId.clearBit(31)
       priority.streamId = StreamId(streamId)

@@ -43,14 +43,16 @@ proc initHeadersFrame*(streamId: StreamId, headerBlockFragment: seq[byte],
 
   let headers = initFrameHeaders(length = uint32(length), frameType = FrameType.Headers,
                                  flag = flag, streamId = streamId)
+
   HeadersFrame(headers: headers, headerBlockFragment: headerBlockFragment, 
                priority: priority, padding: padding)
 
 proc readHeaderBlockFragment*(stream: StringStream, 
                               headersFrame: HeadersFrame): seq[byte] {.inline.} =
   var length = headersFrame.headers.length.int
+
   if headersFrame.padding.isSome:
-    dec(length, headersFrame.padding.get.int)
+    dec(length, headersFrame.padding.get.int + 1)
 
   if headersFrame.priority.isSome:
     dec(length, 5)

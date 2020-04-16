@@ -41,6 +41,7 @@ proc initDataFrame*(streamId: StreamId, payload: seq[byte],
 
   let headers = initFrameHeaders(length = uint32(length), frameType = FrameType.Data,
                                  flag = flag, streamId = streamId)
+
   DataFrame(headers: headers, payload: payload, padding: padding)
 
 proc isStreamEnded*(frame: DataFrame): bool {.inline.} =

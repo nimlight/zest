@@ -4,18 +4,14 @@ type
 
 
 const
-  # General flag
-  FlagEndStream* = Flag(1)
-  FlagPadded* = Flag(8)
-
   # Data Frame
-  # FlagEndStream* = Flag(1)
-  # FlagPadded* = Flag(8)
+  FlagDataEndStream* = Flag(1)
+  FlagDataPadded* = Flag(8)
 
   # Headers Frame
-  # FlagHeadersEndStream* = Flag(1)
+  FlagHeadersEndStream* = Flag(1)
   FlagHeadersEndHeaders* = Flag(4)
-  # FlagHeadersPadded* = Flag(8)
+  FlagHeadersPadded* = Flag(8)
   FlagHeadersPriority* = Flag(32)
 
   # Settings Frame

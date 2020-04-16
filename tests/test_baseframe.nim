@@ -20,7 +20,7 @@ block:
     let 
       length = 0'u32
       frameType = FrameType.Data
-      flag = FlagEndStream
+      flag = FlagDataEndStream
       streamId = StreamId(21474836'u32)
       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
       serialize = [0'u8, 0, 1, 0, 1, 1, 71, 174, 20]
@@ -42,7 +42,7 @@ block:
     let 
       length = 1'u32
       frameType = FrameType.Data
-      flag = FlagEndStream
+      flag = FlagDataEndStream
       streamId = StreamId(21474836'u32)
       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
       serialize = [0'u8, 0, 1, 0, 1, 1, 71, 174, 20, 1]
@@ -64,7 +64,7 @@ block:
     let 
       length = 1'u32
       frameType = FrameType.Data
-      flag = FlagPadded
+      flag = FlagDataPadded
       streamId = StreamId(21474836'u32)
       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
       serialize = [0'u8, 0, 1, 0, 8, 1, 71, 174, 20, 0, 1]
@@ -86,7 +86,7 @@ block:
     let 
       length = 2'u32
       frameType = FrameType.Data
-      flag = FlagPadded
+      flag = FlagDataPadded
       streamId = StreamId(21474836'u32)
       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
       serialize = [0'u8, 0, 2, 0, 8, 1, 71, 174, 20, 1, 99, 99, 0]
@@ -108,7 +108,7 @@ block:
     let 
       length = 7'u32
       frameType = FrameType.Data
-      flag = FlagPadded
+      flag = FlagDataPadded
       streamId = StreamId(21474836'u32)
       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
       serialize = [0'u8, 0, 7, 0, 8, 1, 71, 174, 20, 6, 99, 99, 99, 

@@ -11,12 +11,12 @@ import ../src/zest/frame/flags
 
 
 block:
-  doAssert FlagPadded == Flag(8)
-  doAssert FlagPadded != FlagEndStream
-  doAssert (FlagPadded and FlagEndStream) == Flag(0)
-  doAssert (FlagPadded or FlagEndStream) == Flag(9)
+  doAssert FlagDataPadded == Flag(8)
+  doAssert FlagDataPadded != FlagDataEndStream
+  doAssert (FlagDataPadded and FlagDataEndStream) == Flag(0)
+  doAssert (FlagDataPadded or FlagDataEndStream) == Flag(9)
   doAssert Flag(12).contains(FlagHeadersEndHeaders)
-  doAssert Flag(9).contains(FlagPadded)
-  doAssert Flag(9).contains(FlagEndStream)
+  doAssert Flag(9).contains(FlagDataPadded)
+  doAssert Flag(9).contains(FlagDataEndStream)
   doAssert not Flag(9).contains(FlagHeadersEndHeaders)
   doAssert not Flag(9).contains(FlagHeadersPriority)

@@ -29,6 +29,6 @@ type
 proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] {.inline.} =
   ## Reads pad length.
   result = none(Padding)
-  if headers.flag.contains(FlagPadded):
+  if headers.flag.contains(FlagDataPadded):
     if canReadNBytes(stream, 1):
       result = some(stream.readUint8.Padding)

@@ -20,18 +20,18 @@ type
 
 proc serialize*(frame: HeadersFrame): seq[byte] = 
   ## Serializes the fields of the dataFrame.
+  
+  result = newSeqOfCap[byte](9 + frame.headers.length)
   if frame.padding.isSome:
     let length = frame.padding.get()
-    if frame.priority.isSome:
+    if frame.padding.isSome:
       # headers + pad length + priority + headerBlockFragment + Padding
-      result = newSeqOfCap[byte](9 + 1 + frame.headerBlockFragment.len + length.int)
       result.add frame.headers.serialize
       result.add byte(length)
       result.add frame.headerBlockFragment
       result.add newSeq[byte](length.int)
   else:
     # headers + payload
-    result = newSeqOfCap[byte](9 + frame.headerBlockFragment.len)
     result.add frame.headers.serialize
     result.add frame.headerBlockFragment
 

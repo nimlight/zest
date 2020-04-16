@@ -19,8 +19,8 @@ type
     ## octets associated with a stream.  One or more DATA frames are used,
     ## for instance, to carry HTTP request or response payloads.
     # Allowed flags:
-    # FlagEndStream = 0x1
-    # FlagPadded = 0x8
+    # FlagDataEndStream = 0x1
+    # FlagDataPadded = 0x8
     padding*: Option[Padding]
     payload*: seq[byte]
 
@@ -31,23 +31,23 @@ proc initDataFrame*(streamId: StreamId, payload: seq[byte],
   var flag: Flag
   var length = payload.len
   if padding.isSome:
-    flag = FlagPadded
+    flag = FlagDataPadded
     inc(length, padding.get.int + 1)
 
   if endStream:
-    flag = flag or FlagEndStream
+    flag = flag or FlagDataEndStream
 
   let headers = initFrameHeaders(length = uint32(length), frameType = FrameType.Data,
                                  flag = flag, streamId = streamId)
   DataFrame(headers: headers, payload: payload, padding: padding)
 
 proc isStreamEnded*(frame: DataFrame): bool {.inline.} =
-  ## Contains FlagEndStream flag.
-  frame.headers.flag.contains(FlagEndStream)
+  ## Contains FlagDataEndStream flag.
+  frame.headers.flag.contains(FlagDataEndStream)
 
 proc isPadded*(frame: DataFrame): bool {.inline.} =
-  ## Contains FlagPadded flag.
-  frame.headers.flag.contains(FlagPadded)
+  ## Contains FlagDataPadded flag.
+  frame.headers.flag.contains(FlagDataPadded)
 
 proc readPayload*(stream: StringStream, length: uint32, padLength: Option[Padding]): seq[byte] {.inline.} =
   ## Reads payload.
@@ -65,7 +65,7 @@ proc readPayload*(stream: StringStream, length: uint32, padLength: Option[Paddin
       result = newSeq[byte](payloadLen)
       discard stream.readData(result[0].addr, payloadLen)
 
-proc serialize*(frame: DataFrame): seq[byte] = 
+proc serialize*(frame: DataFrame): seq[byte] {.inline.} = 
   ## Serializes the fields of the dataFrame.
 
   result = newSeqOfCap[byte](9 + frame.headers.length)
@@ -81,7 +81,7 @@ proc serialize*(frame: DataFrame): seq[byte] =
     result.add frame.headers.serialize
     result.add frame.payload
 
-proc readDataFrame*(stream: StringStream): DataFrame =
+proc readDataFrame*(stream: StringStream): DataFrame {.inline.} =
   ## Reads the fields of the dataFrame.
 
   # read frame header

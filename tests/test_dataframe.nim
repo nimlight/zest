@@ -14,92 +14,93 @@ import ../src/zest/frame/baseframe
 import ../src/zest/frame/dataframe
 
 
-# # test "read payload"
-# block:
-#   # have no payload
-#   block:
-#     let 
-#       length = 0'u32
-#       frameType = FrameType.Data
-#       flag = FlagEndStream
-#       streamId = StreamId(21474836'u32)
-#       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
-#       serialize = [0'u8, 0, 0, 0, 1, 1, 71, 174, 20]
+# test "read payload"
+block:
+  # have no payload
+  block:
+    let 
+      length = 0'u32
+      frameType = FrameType.Data
+      flag = FlagDataEndStream
+      streamId = StreamId(21474836'u32)
+      frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
+      serialize = [0'u8, 0, 0, 0, 1, 1, 71, 174, 20]
 
-#     var str = fromByteSeq(serialize)
-#     let 
-#       strm = newStringStream(move(str))
+    var str = fromByteSeq(serialize)
+    let 
+      strm = newStringStream(move(str))
 
-#     # frameheaders of nine octets
-#     discard strm.readFrameHeaders
-#     discard strm.readPadding(frameHeaders)
+    # frameheaders of nine octets
+    let 
+      headers = strm.readFrameHeaders
+      padding = strm.readPadding(frameHeaders)
 
-#     doAssert strm.readPayload(frameHeaders) == []
-#     strm.close()
+    doAssert strm.readPayload(headers.length, padding) == []
+    strm.close()
 
-#   # have payload of one octet
-#   block:
-#     let 
-#       length = 1'u32
-#       frameType = FrameType.Data
-#       flag = FlagPadded
-#       streamId = StreamId(21474836'u32)
-#       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
-#       serialize = [0'u8, 0, 1, 0, 8, 1, 71, 174, 20, 0, 99]
+  # have payload of one octet
+  block:
+    let 
+      length = 2'u32
+      frameType = FrameType.Data
+      flag = FlagDataPadded
+      streamId = StreamId(21474836'u32)
+      frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
+      serialize = [0'u8, 0, 2, 0, 8, 1, 71, 174, 20, 0, 99]
 
-#     var str = fromByteSeq(serialize)
-#     let 
-#       strm = newStringStream(move(str))
+    var str = fromByteSeq(serialize)
+    let 
+      strm = newStringStream(move(str))
 
-#     # frameheaders of nine octets
-#     discard strm.readFrameHeaders
-#     discard strm.readPadding(frameHeaders)
+    # frameheaders of nine octets
+    let 
+      headers = strm.readFrameHeaders
+      padding = strm.readPadding(frameHeaders)
 
-#     doAssert strm.readPayload(frameHeaders) == [99'u8]
-#     strm.close()
+    doAssert strm.readPayload(headers.length, padding) == [99'u8]
+    strm.close()
 
-#   # have payload of six octets
-#   block:
-#     let 
-#       length = 6'u32
-#       frameType = FrameType.Data
-#       flag = FlagPadded
-#       streamId = StreamId(21474836'u32)
-#       frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
-#       serialize = [0'u8, 0, 6, 0, 8, 1, 71, 174, 20, 1, 99, 99, 99, 99, 99, 99, 0]
+  # have payload of six octets
+  block:
+    let 
+      length = 8'u32
+      frameType = FrameType.Data
+      flag = FlagDataPadded
+      streamId = StreamId(21474836'u32)
+      frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
+      serialize = [0'u8, 0, 8, 0, 8, 1, 71, 174, 20, 1, 99, 99, 99, 99, 99, 99, 0]
 
-#     var str = fromByteSeq(serialize)
-#     let 
-#       strm = newStringStream(move(str))
+    var str = fromByteSeq(serialize)
+    let 
+      strm = newStringStream(move(str))
 
-#     # frameheaders of nine octets
-#     discard strm.readFrameHeaders
-#     discard strm.readPadding(frameHeaders)
+    # frameheaders of nine octets
+    let 
+      headers = strm.readFrameHeaders
+      padding = strm.readPadding(frameHeaders)
+      data = strm.readPayload(headers.length, padding)
+    
+    doAssert data == [99'u8, 99, 99, 99, 99, 99], fmt"{data} != "
+    strm.close()
 
-#     doAssert strm.readPayload(frameHeaders) == [99'u8, 99, 99, 99, 99, 99]
-#     strm.close()
 
+# padding is too large
+block:
+  let 
+    # length = 7'u32
+    # frameType = FrameType.Data
+    # flag = FlagDataPadded
+    # streamId = StreamId(21474836'u32)
+    # payload = [99'u8, 99]
+    serialize = [0'u8, 0, 6, 0, 8, 1, 71, 174, 20, 4, 99, 99, 0, 0, 0, 0]
 
-# # padding is too large
-# block:
-#   let 
-#     length = 2'u32
-#     frameType = FrameType.Data
-#     flag = FlagPadded
-#     streamId = StreamId(21474836'u32)
-#     frameHeaders = initFrameHeaders(length, frameType, flag, streamId)
-#     serialize = [0'u8, 0, 2, 0, 8, 1, 71, 174, 20, 4, 99, 99, 0, 0, 0, 0]
+  var str = fromByteSeq(serialize)
+  let 
+    strm = newStringStream(move(str))
 
-#   var str = fromByteSeq(serialize)
-#   let 
-#     strm = newStringStream(move(str))
-
-#   # frameheaders of nine octets
-#   discard strm.readFrameHeaders
-
-#   doAssertRaises(ConnectionError):
-#     discard strm.readPadding(frameHeaders)
-#   strm.close()
+  doAssertRaises(ConnectionError):
+    discard strm.readDataFrame
+  strm.close()
 
 
 block:

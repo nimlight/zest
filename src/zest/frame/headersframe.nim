@@ -49,14 +49,21 @@ proc initHeadersFrame*(streamId: StreamId, headerBlockFragment: seq[byte],
 
 proc readHeaderBlockFragment*(stream: StringStream, 
                               headersFrame: HeadersFrame): seq[byte] {.inline.} =
-  var length = headersFrame.headers.length.int
-
-  if headersFrame.padding.isSome:
-    dec(length, headersFrame.padding.get.int + 1)
+  var 
+    length = headersFrame.headers.length.int
 
   if headersFrame.priority.isSome:
     dec(length, 5)
 
+  if headersFrame.padding.isSome:
+    let padLength = headersFrame.padding.get.int
+    dec(length, padLength + 1)
+
+    # Padding that exceeds the size remaining for the header block fragment MUST be
+    # treated as a PROTOCOL_ERROR.
+    if padLength >= length:
+      raise newStreamError(ErrorCode.Protocol, "Padding is too large!")
+  
   if length > 0 and canReadNBytes(stream, length):
     result = newSeq[byte](length)
     discard stream.readData(result[0].addr, length)
@@ -71,6 +78,8 @@ proc serialize*(frame: HeadersFrame): seq[byte] {.inline.} =
   if frame.padding.isSome:
     result.add byte(frame.padding.get)
 
+  # A stream that is not dependent on any other stream is given a stream
+  # dependency of 0x0.
   if frame.priority.isSome:
     let priority = frame.priority.get
     var streamId = uint32(priority.streamId)
@@ -89,6 +98,12 @@ proc readHeadersFrame*(stream: StringStream): HeadersFrame {.inline.} =
   
   # read frame header
   result.headers = stream.readFrameHeaders
+
+  # If a HEADERS frame is received whose stream identifier field is 0x0, 
+  # the recipient MUST respond with a connection error 
+  # (Section 5.4.1) of type PROTOCOL_ERROR.
+  if result.headers.streamId == StreamId(0):
+    raise newConnectionError(ErrorCode.Protocol, "HEADERS frame can't be received with stream ID 0")
 
   # read pad length
   result.padding = stream.readPadding(result.headers)

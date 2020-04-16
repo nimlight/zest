@@ -10,7 +10,7 @@ discard """
 import ../src/zest/frame/bytes
 
 
-import math, streams
+import streams
 
 
 # test "toByteSeq" and "fromByteSeq"
@@ -38,30 +38,30 @@ block:
 # test "serialize uint64"
 block:
   doAssert serialize(0'u64) == [0'u8, 0, 0, 0, 0, 0, 0, 0]
-  doAssert serialize(2'u64 ^ 0) == [0'u8, 0, 0, 0, 0, 0, 0, 1]
-  doAssert serialize(2'u64 ^ 8) == [0'u8, 0, 0, 0, 0, 0, 1, 0]
-  doAssert serialize(2'u64 ^ 16) == [0'u8, 0, 0, 0, 0, 1, 0, 0]
-  doAssert serialize(2'u64 ^ 24) == [0'u8, 0, 0, 0, 1, 0, 0, 0]
-  doAssert serialize(2'u64 ^ 32) == [0'u8, 0, 0, 1, 0, 0, 0, 0]
-  doAssert serialize(2'u64 ^ 40) == [0'u8, 0, 1, 0, 0, 0, 0, 0]
-  doAssert serialize(2'u64 ^ 48) == [0'u8, 1, 0, 0, 0, 0, 0, 0]
-  doAssert serialize(2'u64 ^ 56) == [1'u8, 0, 0, 0, 0, 0, 0, 0]
+  doAssert serialize(1'u64) == [0'u8, 0, 0, 0, 0, 0, 0, 1]
+  doAssert serialize(1'u64 shl 8) == [0'u8, 0, 0, 0, 0, 0, 1, 0]
+  doAssert serialize(1'u64 shl 16) == [0'u8, 0, 0, 0, 0, 1, 0, 0]
+  doAssert serialize(1'u64 shl 24) == [0'u8, 0, 0, 0, 1, 0, 0, 0]
+  doAssert serialize(1'u64 shl 32) == [0'u8, 0, 0, 1, 0, 0, 0, 0]
+  doAssert serialize(1'u64 shl 40) == [0'u8, 0, 1, 0, 0, 0, 0, 0]
+  doAssert serialize(1'u64 shl 48) == [0'u8, 1, 0, 0, 0, 0, 0, 0]
+  doAssert serialize(1'u64 shl 56) == [1'u8, 0, 0, 0, 0, 0, 0, 0]
   doAssert serialize(high(uint64)) == [255'u8, 255, 255, 255, 255, 255, 255, 255]
 
 # test "serialize uint32"
 block:
   doAssert serialize(0'u32) == [0'u8, 0, 0, 0]
-  doAssert serialize(2'u32 ^ 0) == [0'u8, 0, 0, 1]
-  doAssert serialize(2'u32 ^ 8) == [0'u8, 0, 1, 0]
-  doAssert serialize(2'u32 ^ 16) == [0'u8, 1, 0, 0]
-  doAssert serialize(2'u32 ^ 24) == [1'u8, 0, 0, 0]
+  doAssert serialize(1'u32) == [0'u8, 0, 0, 1]
+  doAssert serialize(1'u32 shl 8) == [0'u8, 0, 1, 0]
+  doAssert serialize(1'u32 shl 16) == [0'u8, 1, 0, 0]
+  doAssert serialize(1'u32 shl 24) == [1'u8, 0, 0, 0]
   doAssert serialize(high(uint32)) == [255'u8, 255, 255, 255]
 
 # test "serialize uint16"
 block:
   doAssert serialize(0'u16) == [0'u8, 0]
-  doAssert serialize(2'u16 ^ 0) == [0'u8, 1]
-  doAssert serialize(2'u16 ^ 8) == [1'u8, 0]
+  doAssert serialize(1'u16) == [0'u8, 1]
+  doAssert serialize(1'u16 shl 8) == [1'u8, 0]
   doAssert serialize(high(uint16)) == [255'u8, 255]
 
 # test "can read n bytes"

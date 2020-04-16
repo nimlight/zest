@@ -19,12 +19,44 @@ block:
   let
     streamId = StreamId(374)
     headerBlockFragment = @[120'u8, 105, 110, 103, 122, 101, 115, 104, 101, 110]
-    padding = Padding(4)
+    padding = some(Padding(4))
     priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
-    headersFrame = initHeadersFrame(streamId, headerBlockFragment, some(padding), some(priority))
+    headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
 
   doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
 
 
 # padding
+block:
+  # empty padding
+  block:
+    let
+      streamId = StreamId(374)
+      headerBlockFragment = @[120'u8, 105, 110, 103, 122, 101, 115, 104, 101, 110]
+      padding = none(Padding)
+      priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
+      headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
 
+    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+
+  # zero padding
+  block:
+    let
+      streamId = StreamId(374)
+      headerBlockFragment = @[120'u8, 105, 110, 103, 122, 101, 115, 104, 101, 110]
+      padding = some(Padding(0))
+      priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
+      headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+
+    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+
+  # more padding
+  block:
+    let
+      streamId = StreamId(374)
+      headerBlockFragment = @[120'u8, 105, 110, 103, 122, 101, 115, 104, 101, 110]
+      padding = some(Padding(8))
+      priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
+      headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+
+    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame

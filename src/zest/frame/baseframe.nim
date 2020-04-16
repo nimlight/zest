@@ -44,7 +44,6 @@ proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] 
   else:
     raise FrameError(msg: "Frames shouldn't have padding.")
 
-
 proc readPriority*(stream: StringStream, headers: FrameHeaders): Option[Priority] {.inline.} =
   ## Reads priority
   result = none(Priority)
@@ -57,6 +56,8 @@ proc readPriority*(stream: StringStream, headers: FrameHeaders): Option[Priority
       priority.exclusive = streamId.testBit(31)
       streamId.clearBit(31)
       priority.streamId = StreamId(streamId)
+      if priority.streamId == headers.streamId:
+        raise newStreamError(ErrorCode.Protocol, "A stream cannot depend on itself.")
       priority.weight = stream.readUint8
       result = some(priority)
   else:

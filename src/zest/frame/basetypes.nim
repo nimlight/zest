@@ -12,6 +12,9 @@ type
   ConnectionError* = ref object of CatchableError
     errorCode: ErrorCode
 
+  StreamError* = ref object of CatchableError
+    errorCode: ErrorCode
+
   InvalidPaddingError* = ref object of FrameError
   UnknownFrameError* = ref object of FrameError
   InvalidFrameError* = ref object of FrameError
@@ -61,10 +64,13 @@ type
   # a connection error of type PROTOCOL_ERROR.
   Padding* = distinct uint8 ## Padding is present if the PADDED flag is set.
 
+  # The weight of the stream is always in the range [0, 255], 
+  # Add one to the value to obtain a weight between 1 and 256.
+  # So that the value fits into a ``uint8`` .
   Priority* = object
-    streamId*: StreamId
-    weight*: uint8
-    exclusive*: bool
+    streamId*: StreamId ## The dependency stream id.
+    weight*: uint8      ## The weight for the stream. 
+    exclusive*: bool    ## True if the stream dependency is exclusive(value = 1).
 
 
 proc `==`*(self, other: StreamId): bool {.borrow.}
@@ -73,8 +79,12 @@ proc `==`*(self, other: Padding): bool {.borrow.}
 
 
 proc newConnectionError*(errorCode: ErrorCode, msg: string): ConnectionError {.inline.} =
-  ## new a ConnectionError.
+  ## Creates a ConnectionError.
   ConnectionError(errorCode: errorCode, msg: msg)
+
+proc newStreamError*(errorCode: ErrorCode, msg: string): StreamError {.inline.} =
+  ## Creates a StreamError.
+  StreamError(errorCode: errorCode, msg: msg)
 
 proc initPriority*(streamId: StreamId, weight: uint8, exclusive: bool): Priority {.inline.} =
   ## Initiates a Priority.

@@ -17,7 +17,7 @@ proc serialize*(frame: PriorityFrame): seq[byte] {.inline.} =
   ## Serializes the fields of the PriorityFrame.
   
   # headers + priority
-  result = newSeqOfCap[byte](14)
+  result = newSeqOfCap[byte](9 + 5)
   result.add frame.headers.serialize
 
   # A stream that is not dependent on any other stream is given a stream

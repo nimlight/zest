@@ -21,7 +21,7 @@ type
 
 proc initHeadersFrame*(streamId: StreamId, headerBlockFragment: seq[byte],
                        padding: Option[Padding], priority: Option[Priority], 
-                       endStream = false, endHeaders = false): HeadersFrame {.inline.}=
+                       endStream = false, endHeaders = false): HeadersFrame {.inline.} =
   ## Initiates HeadersFrame.
   var 
     flag: Flag
@@ -69,7 +69,7 @@ proc readHeaderBlockFragment*(stream: StringStream,
     discard stream.readData(result[0].addr, length)
 
 proc serialize*(frame: HeadersFrame): seq[byte] {.inline.} = 
-  ## Serializes the fields of the dataFrame.
+  ## Serializes the fields of the HeadersFrame.
   
   # headers + pad length(?) + priority(?) + headerBlockFragment + Padding(?)
   let length = 9 + frame.headers.length
@@ -94,7 +94,7 @@ proc serialize*(frame: HeadersFrame): seq[byte] {.inline.} =
   result.setLen(length)
 
 proc readHeadersFrame*(stream: StringStream): HeadersFrame {.inline.} =
-  ## Reads the fields of the dataFrame.
+  ## Reads the fields of the HeadersFrame.
   
   # read frame header
   result.headers = stream.readFrameHeaders

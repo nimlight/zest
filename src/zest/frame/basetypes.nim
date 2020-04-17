@@ -15,11 +15,6 @@ type
   StreamError* = ref object of CatchableError
     errorCode: ErrorCode
 
-  InvalidPaddingError* = ref object of FrameError
-  UnknownFrameError* = ref object of FrameError
-  InvalidFrameError* = ref object of FrameError
-    errorCode*: ErrorCode
-
   StreamId* = distinct uint32
 
   FrameType* {.pure.} = enum
@@ -113,7 +108,7 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
 
   # read 9 bytes
   if not canReadNBytes(stream, 9):
-    raise FrameError(msg: "Invalid frame header")
+    raise newStreamError(ErrorCode.FrameSize, "Invalid frame header!")
 
   # read length
   # 24-bit 0000 00
@@ -122,7 +117,7 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
   # read frame type
   let frameType = stream.readUint8
   if frameType >= 10'u8:
-    raise UnknownFrameError(msg: "Unknown frame!")
+    raise newStreamError(ErrorCode.Protocol, "Unknown frame!")
   else:
     result.frameType = FrameType(frameType)
 

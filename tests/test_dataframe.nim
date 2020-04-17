@@ -1,6 +1,6 @@
 discard """
   cmd:      "nim c -r --styleCheck:hint --panics:on $options $file"
-  matrix:   "--gc:arc; --gc:refc"
+  matrix:   "--gc:refc; --gc:arc"
   targets:  "c"
   nimout:   ""
   action:   "run"

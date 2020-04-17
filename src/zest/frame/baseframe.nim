@@ -44,21 +44,31 @@ proc readPadding*(stream: StringStream, headers: FrameHeaders): Option[Padding] 
   else:
     raise FrameError(msg: "Frames shouldn't have padding.")
 
+template readPriorityInternal(stream: StringStream, headers: FrameHeaders): Option[Priority] =
+  var 
+    priority: Priority
+    streamId = stream.readBEUint32
+  priority.exclusive = streamId.testBit(31)
+  streamId.clearBit(31)
+  priority.streamId = StreamId(streamId)
+
+  # A stream cannot depend on itself.  An endpoint MUST treat this as a
+  # stream error (Section 5.4.2) of type PROTOCOL_ERROR.
+  if priority.streamId == headers.streamId:
+    raise newStreamError(ErrorCode.Protocol, "A stream cannot depend on itself.")
+
+  priority.weight = stream.readUint8
+  some(priority)
+
 proc readPriority*(stream: StringStream, headers: FrameHeaders): Option[Priority] {.inline.} =
   ## Reads priority
   result = none(Priority)
   case headers.frameType
   of FrameType.Headers:
     if headers.flag.contains(FlagHeadersPriority) and canReadNBytes(stream, 5):
-      var 
-        priority: Priority
-        streamId = stream.readBEUint32
-      priority.exclusive = streamId.testBit(31)
-      streamId.clearBit(31)
-      priority.streamId = StreamId(streamId)
-      if priority.streamId == headers.streamId:
-        raise newStreamError(ErrorCode.Protocol, "A stream cannot depend on itself.")
-      priority.weight = stream.readUint8
-      result = some(priority)
+      result = stream.readPriorityInternal(headers)
+  of FrameType.Priority:
+    if canReadNBytes(stream, 5):
+      result = stream.readPriorityInternal(headers)
   else:
     raise FrameError(msg: "Frames shouldn't have priority.")

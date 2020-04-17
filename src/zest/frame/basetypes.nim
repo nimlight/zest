@@ -108,7 +108,7 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
 
   # read 9 bytes
   if not canReadNBytes(stream, 9):
-    raise newStreamError(ErrorCode.FrameSize, "Invalid frame header!")
+    raise newStreamError(ErrorCode.FrameSize, "The length of FrameHeaders frame must be more than 9 octets!!")
 
   # read length
   # 24-bit 0000 00

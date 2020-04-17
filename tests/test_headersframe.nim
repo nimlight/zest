@@ -8,7 +8,7 @@ discard """
   timeout:  60.0
 """
 import ../src/zest/frame/baseframe
-import ../src/zest/frame/headersFrame
+import ../src/zest/frame/headersframe
 
 
 import ./utils

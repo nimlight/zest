@@ -27,8 +27,14 @@ proc readRstStreamFrame*(stream: StringStream): RstStreamFrame {.inline.} =
   # read frame header
   result.headers = stream.readFrameHeaders
 
+  # A RST_STREAM frame with a length other than 4 octets MUST be treated
+  # as a connection error (Section 5.4.1) of type FRAME_SIZE_ERROR.
+  if not canReadNBytes(stream, 4):
+    raise newConnectionError(ErrorCode.FrameSize, "The length of RstStream frame must be more than 4 octets!")
+
   # read frame ErrorCode
   let errorCode = stream.readBEUint32
+
   if errorCode >= 14'u8:
     raise newStreamError(ErrorCode.Protocol, "Unknown errorCode!")
   else:

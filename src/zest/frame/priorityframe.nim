@@ -41,7 +41,7 @@ proc readPriorityFrame*(stream: StringStream): PriorityFrame {.inline.} =
   # is received with a stream identifier of 0x0, the recipient MUST
   # respond with a connection error (Section 5.4.1) of type PROTOCOL_ERROR.
   if result.headers.streamId == StreamId(0):
-    raise newConnectionError(ErrorCode.Protocol, "HEADERS frame can't be received with stream ID 0.")
+    raise newConnectionError(ErrorCode.Protocol, "Priority frame can't be received with stream ID 0.")
 
   # read frame priority
   let priority = stream.readPriority(result.headers)

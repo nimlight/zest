@@ -2,6 +2,9 @@ import ./baseframe
 
 
 type
+  # +---------------------------------------------------------------+
+  # |                        Error Code (32)                        |
+  # +---------------------------------------------------------------+
   RstStreamFrame* = object of Frame
     errorCode*: ErrorCode
 

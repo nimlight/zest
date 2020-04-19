@@ -2,6 +2,11 @@ import ./baseframe
 
 
 type
+  # +-+-------------------------------------------------------------+
+  # |E|                  Stream Dependency (31)                     |
+  # +-+-------------+-----------------------------------------------+
+  # |   Weight (8)  |
+  # +-+-------------+
   PriorityFrame* = object of Frame
     priority*: Priority
 

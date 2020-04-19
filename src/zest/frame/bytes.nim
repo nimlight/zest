@@ -46,6 +46,10 @@ template canReadNBytes*(stream: StringStream, length: Natural): bool =
   ## Decides whether can read ``length`` bytes.
   stream.data.len >= stream.getPosition() + length
 
+template canReadHowManyBytes*(stream: StringStream): int =
+  ## Can read how many bytes.
+  stream.data.len - stream.getPosition()
+
 proc readBEUint64*(strm: Stream): uint64 {.inline.} =
   ## Reads uint64 in big endians order.
   var input = strm.readUint64

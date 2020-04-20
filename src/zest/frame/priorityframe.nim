@@ -51,5 +51,5 @@ proc readPriorityFrame*(stream: StringStream): PriorityFrame {.inline.} =
   # read frame priority
   let priority = stream.readPriority(result.headers)
   if priority.isNone:
-    raise newStreamError(ErrorCode.FrameSize, "The length of PRIORITY frame must be more than 5 octets!")
+    raise newStreamError(ErrorCode.FrameSize, "The length of PRIORITY frame must be more than 5 octets.")
   result.priority = priority.get

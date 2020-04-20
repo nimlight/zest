@@ -62,7 +62,7 @@ proc readHeaderBlockFragment*(stream: StringStream,
     # Padding that exceeds the size remaining for the header block fragment MUST be
     # treated as a PROTOCOL_ERROR.
     if padLength >= length:
-      raise newStreamError(ErrorCode.Protocol, "Padding is too large!")
+      raise newStreamError(ErrorCode.Protocol, "Padding is too large.")
   
   if length > 0 and canReadNBytes(stream, length):
     result = newSeq[byte](length)

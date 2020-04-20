@@ -108,7 +108,7 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
 
   # read 9 bytes
   if not canReadNBytes(stream, 9):
-    raise newStreamError(ErrorCode.FrameSize, "The length of FrameHeaders frame must be more than 9 octets!!")
+    raise newStreamError(ErrorCode.FrameSize, "The length of FrameHeaders frame must be more than 9 octets.")
 
   # read length
   # 24-bit 0000 00
@@ -117,7 +117,7 @@ proc readFrameHeaders*(stream: StringStream): FrameHeaders =
   # read frame type
   let frameType = stream.readUint8
   if frameType >= 10'u8:
-    raise newStreamError(ErrorCode.Protocol, "Unknown frame!")
+    raise newStreamError(ErrorCode.Protocol, "Unknown frame.")
   else:
     result.frameType = FrameType(frameType)
 

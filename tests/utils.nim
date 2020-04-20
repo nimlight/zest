@@ -5,7 +5,6 @@ import ../src/zest/frame/headersframe
 import strformat
 
 
-proc `==`*(self, other: StreamId): bool {.borrow.}
 proc `$`*(streamId: StreamId): string {.borrow.}
 proc `$`*(flag: Flag): string {.borrow.}
 proc `$`*(padding: Padding): string {.borrow.}

@@ -59,7 +59,7 @@ proc readPayload*(stream: StringStream, length: uint32, padLength: Option[Paddin
     let size = int(padLength.get)
     payloadLen = int(length) - size - 1
     if size >= payloadLen:
-      raise newConnectionError(errorCode = ErrorCode.Protocol, msg = "Padding is too large!")
+      raise newConnectionError(errorCode = ErrorCode.Protocol, msg = "Padding is too large.")
   else:
     payloadLen = int(length)
 

@@ -10,8 +10,10 @@ proc `$`*(flag: Flag): string {.borrow.}
 proc `$`*(padding: Padding): string {.borrow.}
 
 proc `$`*(s: seq[byte]): string =
+  result.add "["
   for i in s:
     result.add fmt"{i} "
+  result.add "]"
 
 proc `==`*(self, other: Priority): bool {.inline.} =
   self.exclusive == other.exclusive and self.weight == other.weight and

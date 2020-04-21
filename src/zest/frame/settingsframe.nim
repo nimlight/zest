@@ -25,17 +25,17 @@ proc isAck*(flag: Flag): bool {.inline.} =
   # Whether contains ack flag.
   flag.contains(FlagSettingsAck)
 
-proc initSettingsFrame*(): SettingsFrame =
-  ## Initiates SettingsFrame.
-  let headers = initFrameHeaders(length = 0'u32, frameType = FrameType.Settings,
-                                flag = FlagSettingsAck, streamId = StreamId(0))
-  SettingsFrame(headers: headers)
 
-proc initSettingsFrame*(flag: Flag, headerTableSize = some(4096'u32),
+proc initSettingsFrame*(hasAckFlag: bool = false, headerTableSize = some(4096'u32),
                         enablePush = some(true), maxConcurrentStreams = none(uint32),
                         initialWindowSize = some(65_535'u32), maxFrameSize = some(16_384'u32),
                         maxHeaderListSize = none(uint32)): SettingsFrame =
   ## Initiates SettingsFrame.
+  if hasAckFlag:
+    let headers = initFrameHeaders(length = 0'u32, frameType = FrameType.Settings,
+                                  flag = FlagSettingsAck, streamId = StreamId(0))
+    return SettingsFrame(headers: headers)
+
   var length = 0'u32
 
   if headerTableSize.isSome:
@@ -62,11 +62,8 @@ proc initSettingsFrame*(flag: Flag, headerTableSize = some(4096'u32),
   if maxHeaderListSize.isSome:
     inc(length, 6)
 
-  if length != 0 and flag.isAck:
-    raise newException(ValueError, "Settings must be empty if ACK flag is set.")
-
   let headers = initFrameHeaders(length = length, frameType = FrameType.Settings,
-                                 flag = flag, streamId = StreamId(0))
+                                 flag = Flag(0), streamId = StreamId(0))
 
   result = SettingsFrame(headers: headers, headerTableSize: headerTableSize,
                          enablePush: enablePush, maxConcurrentStreams: maxConcurrentStreams,

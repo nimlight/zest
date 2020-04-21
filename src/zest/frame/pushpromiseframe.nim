@@ -89,17 +89,18 @@ proc readPushPromiseFrame*(stream: StringStream): PushPromiseFrame {.inline.} =
   # read pad length
   result.padding = stream.readPadding(result.headers)
 
-  # read promisedStreamId
-  var promisedStreamId = stream.readBEUint32
-  promisedStreamId.clearBit(31)
-  result.promisedStreamId = StreamId(promisedStreamId)
+  if canReadNBytes(stream, 4):
+    # read promisedStreamId
+    var promisedStreamId = stream.readBEUint32
+    promisedStreamId.clearBit(31)
+    result.promisedStreamId = StreamId(promisedStreamId)
 
-  # If the stream identifier field specifies the value
-  # 0x0, a recipient MUST respond with a connection error (Section 5.4.1)
-  # of type PROTOCOL_ERROR.
-  if result.promisedStreamId == StreamId(0):
-    raise newConnectionError(ErrorCode.Protocol, 
-                             "PushPromise frame can't be received with promised stream ID 0")
+    # If the stream identifier field specifies the value
+    # 0x0, a recipient MUST respond with a connection error (Section 5.4.1)
+    # of type PROTOCOL_ERROR.
+    if result.promisedStreamId == StreamId(0):
+      raise newConnectionError(ErrorCode.Protocol, 
+                              "PushPromise frame can't be received with promised stream ID 0")
 
   # read headerBlockFragment
   result.headerBlockFragment = stream.readHeaderBlockFragment(result)

@@ -67,3 +67,12 @@ proc readPriority*(stream: StringStream, headers: FrameHeaders): Option[Priority
       result = stream.readPriorityInternal(headers)
   else:
     raise FrameError(msg: "Frames shouldn't have priority.")
+
+proc readErrorCode*(stream: StringStream): ErrorCode {.inline.} =
+  # read frame ErrorCode
+  let errorCode = stream.readBEUint32
+
+  if errorCode >= 14'u8:
+    raise newStreamError(ErrorCode.Protocol, "Unknown errorCode.")
+  else:
+    result = ErrorCode(errorCode)

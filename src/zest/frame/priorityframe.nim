@@ -13,6 +13,15 @@ type
 
 proc initPriorityFrame*(streamId: StreamId, priority: Priority): PriorityFrame {.inline.} =
   ## Initiates PriorityFrame.
+  
+  # The PRIORITY frame always identifies a stream.  If a PRIORITY frame
+  # is received with a stream identifier of 0x0, the recipient MUST
+  # respond with a connection error (Section 5.4.1) of type PROTOCOL_ERROR.
+  if streamId == StreamId(0):
+    raise newException(ValueError, "The streamid of Priority frame can't be zero.")
+
+  assert streamId != priority.streamId, "A stream cannot depend on itself."
+  
   let headers = initFrameHeaders(length = 5'u32, frameType = FrameType.Priority,
                                  flag = Flag(0), streamId = streamId)
 
@@ -36,11 +45,14 @@ proc serialize*(frame: PriorityFrame): seq[byte] {.inline.} =
   result.add serialize(streamId)
   result.add byte(priority.weight)
 
-proc readPriorityFrame*(stream: StringStream): PriorityFrame {.inline.} =
+proc read*(self: type[PriorityFrame], headers: FrameHeaders,
+                        stream: StringStream): PriorityFrame {.inline.} =
   ## Reads the fields of the PriorityFrame.
   
+  assert headers.frameType == FrameType.Priority, "FrameType must be Priority."
+
   # read frame header
-  result.headers = stream.readFrameHeaders
+  result.headers = headers
 
   # The PRIORITY frame always identifies a stream.  If a PRIORITY frame
   # is received with a stream identifier of 0x0, the recipient MUST

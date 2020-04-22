@@ -14,23 +14,37 @@ import ../src/zest/frame/pingframe
 # ack flag
 block:
   block:
-    let pingFrame = initPingFrame(hasAckFlag = true, opaqueData = 12'u64)
-    doAssert pingFrame.serialize.fromByteSeq.newStringStream.readPingFrame == pingFrame
+    let 
+      pingFrame = initPingFrame(hasAckFlag = true, opaqueData = 12'u64)
+      headers = pingFrame.headers
+    doAssert PingFrame.read(headers, pingFrame.serialize[9 .. ^1].fromByteSeq
+                                              .newStringStream) == pingFrame
 
   block:
-    let pingFrame = initPingFrame(hasAckFlag = false, opaqueData = 12'u64)
-    doAssert pingFrame.serialize.fromByteSeq.newStringStream.readPingFrame == pingFrame
-
+    let 
+      pingFrame = initPingFrame(hasAckFlag = false, opaqueData = 12'u64)
+      headers = pingFrame.headers
+    doAssert PingFrame.read(headers, pingFrame.serialize[9 .. ^1].fromByteSeq
+                                              .newStringStream) == pingFrame
 # oqaque data
 block:
   block:
-    let pingFrame = initPingFrame(hasAckFlag = true, opaqueData = 0'u64)
-    doAssert pingFrame.serialize.fromByteSeq.newStringStream.readPingFrame == pingFrame
+    let 
+      pingFrame = initPingFrame(hasAckFlag = true, opaqueData = 0'u64)
+      headers = pingFrame.headers
+    doAssert PingFrame.read(headers, pingFrame.serialize[9 .. ^1].fromByteSeq
+                                              .newStringStream) == pingFrame
 
   block:
-    let pingFrame = initPingFrame(hasAckFlag = false, opaqueData = 4512'u64)
-    doAssert pingFrame.serialize.fromByteSeq.newStringStream.readPingFrame == pingFrame
+    let 
+      pingFrame = initPingFrame(hasAckFlag = false, opaqueData = 4512'u64)
+      headers = pingFrame.headers
+    doAssert PingFrame.read(headers, pingFrame.serialize[9 .. ^1].fromByteSeq
+                                              .newStringStream) == pingFrame
 
   block:
-    let pingFrame = initPingFrame(hasAckFlag = false, opaqueData = high(uint64))
-    doAssert pingFrame.serialize.fromByteSeq.newStringStream.readPingFrame == pingFrame
+    let 
+      pingFrame = initPingFrame(hasAckFlag = false, opaqueData = high(uint64))
+      headers = pingFrame.headers
+    doAssert PingFrame.read(headers, pingFrame.serialize[9 .. ^1].fromByteSeq
+                                              .newStringStream) == pingFrame

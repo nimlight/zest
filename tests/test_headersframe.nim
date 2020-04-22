@@ -22,8 +22,10 @@ block:
     padding = some(Padding(4))
     priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
     headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+    headers = headersFrame.headers
 
-  doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+  doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
 
 # initiates
@@ -34,9 +36,11 @@ block:
     padding = some(Padding(4))
     priority = initPriority(StreamId(374), weight = 12'u8, exclusive = false)
     headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+    headers = headersFrame.headers
 
   doAssertRaises(StreamError):
-    discard headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame
+    discard HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream)
 
 
 # receive headersFrame and streamId is 0x0
@@ -46,10 +50,9 @@ block:
     headerBlockFragment = @[120'u8, 105, 110, 103, 122, 101, 115, 104, 101, 110]
     padding = some(Padding(4))
     priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
-    headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
 
-  doAssertRaises(ConnectionError):
-    discard headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame
+  doAssertRaises(ValueError):
+    discard initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
 
 
 # empty padding and empty priority
@@ -60,8 +63,10 @@ block:
     padding = none(Padding)
     priority = none(Priority)
     headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, priority)
+    headers = headersFrame.headers
 
-  doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+  doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
 
 # padding
@@ -74,8 +79,10 @@ block:
       padding = none(Padding)
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # zero padding
   block:
@@ -85,8 +92,10 @@ block:
       padding = some(Padding(0))
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # more padding
   block:
@@ -96,8 +105,10 @@ block:
       padding = some(Padding(8))
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # pad length is more than headerBlockFragment length
   block:
@@ -107,9 +118,11 @@ block:
       padding = some(Padding(18))
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
     doAssertRaises(StreamError):
-      discard headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame
+      discard HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream)
 
 
 # priority
@@ -121,8 +134,10 @@ block:
       headerBlockFragment = @[120'u8, 105, 110, 103, 122, 101, 115, 104, 101, 110]
       padding = some(Padding(8))
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, none(Priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # depends on streamId 0x0
   block:
@@ -132,8 +147,10 @@ block:
       padding = some(Padding(8))
       priority = initPriority(StreamId(0), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # depends on streamId 0x888
   block:
@@ -143,8 +160,10 @@ block:
       padding = some(Padding(8))
       priority = initPriority(StreamId(888), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # weight is zero
   block:
@@ -154,8 +173,10 @@ block:
       padding = some(Padding(8))
       priority = initPriority(StreamId(888), weight = 0'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # weight is 255
   block:
@@ -165,8 +186,10 @@ block:
       padding = some(Padding(8))
       priority = initPriority(StreamId(888), weight = 255'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # exclusive is true
   block:
@@ -176,8 +199,10 @@ block:
       padding = some(Padding(8))
       priority = initPriority(StreamId(888), weight = 124'u8, exclusive = true)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # exclusive is false
   block:
@@ -187,8 +212,10 @@ block:
       padding = some(Padding(8))
       priority = initPriority(StreamId(888), weight = 124'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
 
 # headerBlockFragment
@@ -201,8 +228,10 @@ block:
       padding = none(Padding)
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # headerBlockFragment is empty and padding is zero
   block:
@@ -212,9 +241,11 @@ block:
       padding = some(Padding(0))
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
     doAssertRaises(StreamError):
-      discard headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame
+      discard HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream)
 
   # headerBlockFragment is seq[byte] of length 1
   block:
@@ -224,8 +255,10 @@ block:
       padding = some(Padding(0))
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame
 
   # headerBlockFragment is seq[byte] of length 1 and padding is one
   block:
@@ -235,9 +268,11 @@ block:
       padding = some(Padding(1))
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
     doAssertRaises(StreamError):
-      discard headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame
+      discard HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream)
 
   # headerBlockFragment is seq[byte] of length 8888
   block:
@@ -247,5 +282,7 @@ block:
       padding = some(Padding(4))
       priority = initPriority(StreamId(876), weight = 12'u8, exclusive = false)
       headersFrame = initHeadersFrame(streamId, headerBlockFragment, padding, some(priority))
+      headers = headersFrame.headers
 
-    doAssert headersFrame.serialize.fromByteSeq.newStringStream.readHeadersFrame == headersFrame
+    doAssert HeadersFrame.read(headers, headersFrame.serialize[9 .. ^1].fromByteSeq
+                                                  .newStringStream) == headersFrame

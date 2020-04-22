@@ -27,9 +27,10 @@ proc serialize*(frame: WindowUpdateFrame): seq[byte] {.inline.} =
   result.add frame.headers.serialize
   result.add frame.windowSizeIncrement.serialize
 
-proc readWindowUpdateFrame*(stream: StringStream): WindowUpdateFrame {.inline.} =
+proc read*(self: type[WindowUpdateFrame], headers: FrameHeaders, 
+           stream: StringStream): WindowUpdateFrame {.inline.} =
   ## Reads WindowUpdateFrame.
-  result.headers = stream.readFrameHeaders
+  result.headers = headers
 
 
   #  A WINDOW_UPDATE frame with a length other than 4 octets MUST be

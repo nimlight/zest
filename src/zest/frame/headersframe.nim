@@ -27,6 +27,12 @@ proc initHeadersFrame*(streamId: StreamId, headerBlockFragment: seq[byte],
     flag: Flag
     length = headerBlockFragment.len
 
+  # If a HEADERS frame is received whose stream identifier field is 0x0, 
+  # the recipient MUST respond with a connection error 
+  # (Section 5.4.1) of type PROTOCOL_ERROR.
+  if streamId == StreamId(0):
+    raise newException(ValueError, "The stream id of DataFrame must not be zero.")
+
   if padding.isSome:
     flag = flag or FlagHeadersPadded
     inc(length, padding.get.int + 1)
@@ -93,11 +99,13 @@ proc serialize*(frame: HeadersFrame): seq[byte] {.inline.} =
   result.add frame.headerBlockFragment
   result.setLen(length)
 
-proc readHeadersFrame*(stream: StringStream): HeadersFrame {.inline.} =
+proc read*(self: type[HeadersFrame], headers: FrameHeaders, stream: StringStream): HeadersFrame {.inline.} =
   ## Reads the fields of the HeadersFrame.
   
+  assert headers.frameType == FrameType.Headers, "FrameType must be Headers."
+
   # read frame header
-  result.headers = stream.readFrameHeaders
+  result.headers = headers
 
   # If a HEADERS frame is received whose stream identifier field is 0x0, 
   # the recipient MUST respond with a connection error 

@@ -16,20 +16,24 @@ block:
   let 
     errorCode = ErrorCode.No
     rstStreamFrame = initRstStreamFrame(StreamId(12), errorCode)
+    headers = rstStreamFrame.headers
 
-  doAssert rstStreamFrame.serialize.fromByteSeq.newStringStream.readRstStreamFrame == rstStreamFrame
+  doAssert RstStreamFrame.read(headers, rstStreamFrame.serialize[9 .. ^1].fromByteSeq
+                                                      .newStringStream) == rstStreamFrame
 
 
 # A RST_STREAM frame with a length other than 4 octets
 block:
+  let headers = @[0'u8, 0, 4, 3, 0, 1, 7, 5, 1].fromByteSeq.newStringStream.readFrameHeaders
   doAssertRaises(ConnectionError):
-    discard @[0'u8, 0, 4, 3, 0, 1, 7, 5, 1, 0, 0, 0].fromByteSeq.newStringStream.readRstStreamFrame
+    discard RstStreamFrame.read(headers, @[0'u8, 0, 0].fromByteSeq.newStringStream)
 
 
 # A RST_STREAM frame with a length other than 4 octets
 block:
+  let headers = @[0'u8, 0, 4, 3, 0, 1, 7, 5, 1].fromByteSeq.newStringStream.readFrameHeaders
   doAssertRaises(StreamError):
-    discard @[0'u8, 0, 4, 3, 0, 1, 7, 5, 1, 0, 0, 0, 14].fromByteSeq.newStringStream.readRstStreamFrame
+    discard RstStreamFrame.read(headers, @[0'u8, 0, 0, 14].fromByteSeq.newStringStream)
 
 
 # ErrorCode
@@ -38,13 +42,17 @@ block:
     let 
       errorCode = ErrorCode.No
       rstStreamFrame = initRstStreamFrame(StreamId(133), errorCode)
+      headers = rstStreamFrame.headers
 
-    doAssert rstStreamFrame.serialize.fromByteSeq.newStringStream.readRstStreamFrame == rstStreamFrame
+    doAssert RstStreamFrame.read(headers, rstStreamFrame.serialize[9 .. ^1].fromByteSeq
+                                                      .newStringStream) == rstStreamFrame
 
   block:
     for idx in 0 .. 13:
       let 
         errorCode = ErrorCode(idx)
         rstStreamFrame = initRstStreamFrame(StreamId(12), errorCode)
+        headers = rstStreamFrame.headers
 
-      doAssert rstStreamFrame.serialize.fromByteSeq.newStringStream.readRstStreamFrame == rstStreamFrame
+      doAssert RstStreamFrame.read(headers, rstStreamFrame.serialize[9 .. ^1].fromByteSeq
+                                                      .newStringStream) == rstStreamFrame

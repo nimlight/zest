@@ -24,11 +24,14 @@ proc serialize*(frame: RstStreamFrame): seq[byte] {.inline.} =
   result.add frame.headers.serialize
   result.add frame.errorCode.uint32.serialize
 
-proc readRstStreamFrame*(stream: StringStream): RstStreamFrame {.inline.} =
+proc read*(self: type[RstStreamFrame], headers: FrameHeaders, stream: StringStream): RstStreamFrame {.inline.} =
   ## Reads the fields of the RstStreamFrame.
   
+  assert headers.frameType == FrameType.RstStream, "FrameType must be RstStream."
+  
   # read frame header
-  result.headers = stream.readFrameHeaders
+  result.headers = headers
+
 
   # A RST_STREAM frame with a length other than 4 octets MUST be treated
   # as a connection error (Section 5.4.1) of type FRAME_SIZE_ERROR.

@@ -32,9 +32,13 @@ proc serialize*(frame: ContinuationFrame): seq[byte] {.inline.} =
   result.add frame.headers.serialize
   result.add frame.headerBlockFragment
 
-proc readContinuationFrame*(stream: StringStream): ContinuationFrame {.inline.} =
+proc read*(self: type[ContinuationFrame], headers: FrameHeaders,stream: StringStream): ContinuationFrame {.inline.} =
   ## Reads ContinuationFrame.
-  result.headers = stream.readFrameHeaders
+  
+  assert headers.frameType == FrameType.Continuation, "FrameType must be Continuation."
+
+
+  result.headers = headers
 
   # CONTINUATION frames MUST be associated with a stream.  If a
   # CONTINUATION frame is received whose stream identifier field is 0x0,
@@ -51,4 +55,4 @@ proc readContinuationFrame*(stream: StringStream): ContinuationFrame {.inline.} 
 
     var headerBlockFragment = newseq[byte](length)
     discard stream.readData(headerBlockFragment[0].addr, length)
-    result.headerBlockFragment = headerBlockFragment
+    result.headerBlockFragment = move(headerBlockFragment)

@@ -92,14 +92,14 @@ block:
     # flag = FlagDataPadded
     # streamId = StreamId(21474836'u32)
     # payload = [99'u8, 99]
-    serialize = [0'u8, 0, 6, 0, 8, 1, 71, 174, 20, 4, 99, 99, 0, 0, 0, 0]
+    serialize = [99'u8, 99, 0, 0, 0, 0]
 
   var str = fromByteSeq(serialize)
   let 
     strm = newStringStream(move(str))
-
+    headers = initFrameHeaders(7'u32, FrameType.Data, FlagDataPadded, StreamId(21474836))
   doAssertRaises(ConnectionError):
-    discard strm.readDataFrame
+    discard DataFrame.read(headers, strm)
   strm.close()
 
 
@@ -115,10 +115,11 @@ block:
 
   doAssert serialize == [0'u8, 0, 1, 0, 1, 1, 71, 174, 20, 1]
 
-  var str = fromByteSeq(serialize)
+  var str = fromByteSeq([1'u8])
   let 
+    headers = initFrameHeaders(length, frameType, Flag(1), streamId)
     strm = newStringStream(move(str))
-    readed = strm.readDataFrame
+    readed = DataFrame.read(headers, strm)
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
@@ -143,10 +144,11 @@ block:
 
   doAssert serialize == [0'u8, 0, 0, 0, 1, 1, 71, 174, 20]
 
-  var str = fromByteSeq(serialize)
+  var str = fromByteSeq([])
   let 
+    headers = initFrameHeaders(length, frameType, Flag(1), streamId)
     strm = newStringStream(move(str))
-    readed = strm.readDataFrame
+    readed = DataFrame.read(headers, strm)
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
@@ -173,10 +175,11 @@ block:
                          3, 4, 5, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0],
                          fmt"{serialize} != "
 
-  var str = fromByteSeq(serialize)
+  var str = fromByteSeq([8'u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0])
   let 
+    headers = initFrameHeaders(length, frameType, Flag(8), streamId)
     strm = newStringStream(move(str))
-    readed = strm.readDataFrame
+    readed = DataFrame.read(headers, strm)
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
@@ -201,10 +204,11 @@ block:
 
   doAssert serialize == [0'u8, 0, 5, 0, 8, 1, 71, 174, 20, 0, 1, 3, 7, 8]
 
-  var str = fromByteSeq(serialize)
+  var str = fromByteSeq([0'u8, 1, 3, 7, 8])
   let 
+    headers = initFrameHeaders(length, frameType, Flag(8), streamId)
     strm = newStringStream(move(str))
-    readed = strm.readDataFrame
+    readed = DataFrame.read(headers, strm)
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType
@@ -229,10 +233,11 @@ block:
 
   doAssert serialize == [0'u8, 0, 5, 0, 9, 1, 71, 174, 20, 0, 1, 3, 7, 8]
 
-  var str = fromByteSeq(serialize)
+  var str = fromByteSeq([0'u8, 1, 3, 7, 8])
   let 
+    headers = initFrameHeaders(length, frameType, Flag(9), streamId)
     strm = newStringStream(move(str))
-    readed = strm.readDataFrame
+    readed = DataFrame.read(headers, strm)
 
   doAssert readed.headers.length == length, fmt"{readed.headers.length} != {length}"
   doAssert readed.headers.frameType == frameType

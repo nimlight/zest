@@ -20,45 +20,57 @@ block:
 block:
   let streamId = [1, 2, 3, 666, 2233, 2333]
   for idx in streamId:
-    let continuationFrame = initContinuationFrame(StreamId(idx), @[1'u8, 7])
+    let 
+      continuationFrame = initContinuationFrame(StreamId(idx), @[1'u8, 7])
+      headers = continuationFrame.headers
 
-    doAssert continuationFrame.serialize.fromByteSeq.newStringStream
-                              .readContinuationFrame == continuationFrame
+    doAssert ContinuationFrame.read(headers, 
+          continuationFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == continuationFrame
 
 
 # flag
 block:
   let flags = [true, false]
   for idx in flags:
-    let continuationFrame = initContinuationFrame(StreamId(1723), @[1'u8, 7], idx)
+    let 
+      continuationFrame = initContinuationFrame(StreamId(1723), @[1'u8, 7], idx)
+      headers = continuationFrame.headers
 
-    doAssert continuationFrame.serialize.fromByteSeq.newStringStream
-                              .readContinuationFrame == continuationFrame
+    doAssert ContinuationFrame.read(headers, 
+          continuationFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == continuationFrame
 
 
 # headerBlockFragment
 block:
   block:
-    let continuationFrame = initContinuationFrame(StreamId(1723), @[], true)
+    let 
+      continuationFrame = initContinuationFrame(StreamId(1723), @[], true)
+      headers = continuationFrame.headers
 
-    doAssert continuationFrame.serialize.fromByteSeq.newStringStream
-                              .readContinuationFrame == continuationFrame
-
-  block:
-    let continuationFrame = initContinuationFrame(StreamId(1723), @[0'u8], true)
-
-    doAssert continuationFrame.serialize.fromByteSeq.newStringStream
-                              .readContinuationFrame == continuationFrame
+    doAssert ContinuationFrame.read(headers, 
+          continuationFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == continuationFrame
 
   block:
-    let continuationFrame = initContinuationFrame(StreamId(1723), @[1'u8, 2'u8], true)
+    let 
+      continuationFrame = initContinuationFrame(StreamId(1723), @[0'u8], true)
+      headers = continuationFrame.headers
 
-    doAssert continuationFrame.serialize.fromByteSeq.newStringStream
-                              .readContinuationFrame == continuationFrame
+    doAssert ContinuationFrame.read(headers, 
+          continuationFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == continuationFrame
 
   block:
-    let continuationFrame = initContinuationFrame(StreamId(1723), 
+    let 
+      continuationFrame = initContinuationFrame(StreamId(1723), @[1'u8, 2'u8], true)
+      headers = continuationFrame.headers
+
+    doAssert ContinuationFrame.read(headers, 
+          continuationFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == continuationFrame
+
+  block:
+    let 
+      continuationFrame = initContinuationFrame(StreamId(1723), 
                                                   @[1'u8, 2, 3, 7, 8, 9, 12, 255, 236], true)
+      headers = continuationFrame.headers
 
-    doAssert continuationFrame.serialize.fromByteSeq.newStringStream
-                              .readContinuationFrame == continuationFrame
+    doAssert ContinuationFrame.read(headers, 
+          continuationFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == continuationFrame

@@ -19,28 +19,38 @@ block:
   let
     id = [0, 1, 2, 3, 888, 999]
   for idx in id:
-    let goAwayFrame = initGoAwayFrame(StreamId(idx), ErrorCode.No, debugData = @[1'u8, 2])
-    doAssert goAwayFrame.serialize.fromByteSeq.newStringStream.readGoAwayFrame == goAwayFrame
+    let 
+      goAwayFrame = initGoAwayFrame(StreamId(idx), ErrorCode.No, debugData = @[1'u8, 2])
+      headers = goAwayFrame.headers
+    doAssert GoAwayFrame.read(headers, goAwayFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == goAwayFrame
 
 
 # ErrorCode
 block:
   for idx in 0 .. 13:
-    let goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode(idx), debugData = @[1'u8, 2])
-    doAssert goAwayFrame.serialize.fromByteSeq.newStringStream.readGoAwayFrame == goAwayFrame
+    let 
+      goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode(idx), debugData = @[1'u8, 2])
+      headers = goAwayFrame.headers
+    doAssert GoAwayFrame.read(headers, goAwayFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == goAwayFrame
 
 
 # debugData
 block:
   block:
-    let goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode.Protocol, debugData = @[])
-    doAssert goAwayFrame.serialize.fromByteSeq.newStringStream.readGoAwayFrame == goAwayFrame
+    let 
+      goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode.Protocol, debugData = @[])
+      headers = goAwayFrame.headers
+    doAssert GoAwayFrame.read(headers, goAwayFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == goAwayFrame
 
   block:
-    let goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode.Protocol, debugData = @[1'u8])
-    doAssert goAwayFrame.serialize.fromByteSeq.newStringStream.readGoAwayFrame == goAwayFrame
+    let 
+      goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode.Protocol, debugData = @[1'u8])
+      headers = goAwayFrame.headers
+    doAssert GoAwayFrame.read(headers, goAwayFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == goAwayFrame
 
   block:
-    let goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode.Protocol, 
+    let 
+      goAwayFrame = initGoAwayFrame(StreamId(2333), ErrorCode.Protocol, 
                                       debugData = @[1'u8, 9, 7, 5, 6, 7, 8])
-    doAssert goAwayFrame.serialize.fromByteSeq.newStringStream.readGoAwayFrame == goAwayFrame
+      headers = goAwayFrame.headers
+    doAssert GoAwayFrame.read(headers, goAwayFrame.serialize[9 .. ^1].fromByteSeq.newStringStream) == goAwayFrame

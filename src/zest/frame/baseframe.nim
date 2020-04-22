@@ -73,6 +73,6 @@ proc readErrorCode*(stream: StringStream): ErrorCode {.inline.} =
   let errorCode = stream.readBEUint32
 
   if errorCode >= 14'u8:
-    raise newStreamError(ErrorCode.Protocol, "Unknown errorCode.")
+    raise newStreamError(ErrorCode.Protocol, "Unknown ErrorCode.")
   else:
     result = ErrorCode(errorCode)

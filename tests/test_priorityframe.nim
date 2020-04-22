@@ -18,25 +18,20 @@ block:
     let
       streamId = StreamId(0)
       priority = initPriority(StreamId(888), weight = 0'u8, exclusive = false)
-      priorityFrame = initPriorityFrame(streamId, priority)
 
-    doAssertRaises(ConnectionError):
-      discard priorityFrame.serialize.fromByteSeq.newStringStream.readPriorityFrame
-  
+
+    doAssertRaises(ValueError):
+      discard initPriorityFrame(streamId, priority)
+
   # A stream cannot depend on itself.
   block:
-    let
-      streamId = StreamId(888)
-      priority = initPriority(StreamId(888), weight = 0'u8, exclusive = false)
-      priorityFrame = initPriorityFrame(streamId, priority)
-
-    doAssertRaises(StreamError):
-      discard priorityFrame.serialize.fromByteSeq.newStringStream.readPriorityFrame
+    discard
 
   # A PRIORITY frame with a length other than 5 octets
   block:
+    let headers = [0'u8, 0, 5, 2, 0, 1, 7, 5, 1].fromByteSeq.newStringStream.readFrameHeaders
     doAssertRaises(StreamError):
-      discard @[0'u8, 0, 5, 2, 0, 1, 7, 5, 1, 8, 9, 3, 2].fromByteSeq.newStringStream.readPriorityFrame
+      discard PriorityFrame.read(headers, @[8'u8, 9, 3, 2].fromByteSeq.newStringStream)
 
   # weight is zero
   block:
@@ -44,8 +39,10 @@ block:
       streamId = StreamId(50)
       priority = initPriority(StreamId(888), weight = 0'u8, exclusive = false)
       priorityFrame = initPriorityFrame(streamId, priority)
+      headers = priorityFrame.headers
 
-    doAssert priorityFrame.serialize.fromByteSeq.newStringStream.readPriorityFrame == priorityFrame
+    doAssert PriorityFrame.read(headers, priorityFrame.serialize[9 .. ^1].fromByteSeq
+                                                      .newStringStream) == priorityFrame
 
   # weight is 255
   block:
@@ -53,8 +50,10 @@ block:
       streamId = StreamId(10)
       priority = initPriority(StreamId(0), weight = 255'u8, exclusive = false)
       priorityFrame = initPriorityFrame(streamId, priority)
+      headers = priorityFrame.headers
 
-    doAssert priorityFrame.serialize.fromByteSeq.newStringStream.readPriorityFrame == priorityFrame
+    doAssert PriorityFrame.read(headers, priorityFrame.serialize[9 .. ^1].fromByteSeq
+                                                      .newStringStream) == priorityFrame
 
   # exclusive is true
   block:
@@ -62,8 +61,10 @@ block:
       streamId = StreamId(10)
       priority = initPriority(StreamId(1), weight = 25'u8, exclusive = true)
       priorityFrame = initPriorityFrame(streamId, priority)
+      headers = priorityFrame.headers
 
-    doAssert priorityFrame.serialize.fromByteSeq.newStringStream.readPriorityFrame == priorityFrame
+    doAssert PriorityFrame.read(headers, priorityFrame.serialize[9 .. ^1].fromByteSeq
+                                                      .newStringStream) == priorityFrame
 
   # exclusive is false
   block:
@@ -71,5 +72,7 @@ block:
       streamId = StreamId(10)
       priority = initPriority(StreamId(2), weight = 25'u8, exclusive = false)
       priorityFrame = initPriorityFrame(streamId, priority)
+      headers = priorityFrame.headers
 
-    doAssert priorityFrame.serialize.fromByteSeq.newStringStream.readPriorityFrame == priorityFrame
+    doAssert PriorityFrame.read(headers, priorityFrame.serialize[9 .. ^1].fromByteSeq
+                                                      .newStringStream) == priorityFrame

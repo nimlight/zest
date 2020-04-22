@@ -15,7 +15,7 @@ type
     debugData*: seq[byte]
 
 proc initGoAwayFrame*(lastStreamId: StreamId, errorCode: ErrorCode, debugData: seq[byte]): GoAwayFrame =
-  # Initiates GoAwayFrame
+  ## Initiates GoAwayFrame
   let 
     length = 4 + 4 + debugData.len
     headers = initFrameHeaders(length = uint32(length), frameType = FrameType.GoAway,
@@ -24,7 +24,7 @@ proc initGoAwayFrame*(lastStreamId: StreamId, errorCode: ErrorCode, debugData: s
   GoAwayFrame(headers: headers, lastStreamId: lastStreamId, errorCode: errorCode, debugData: debugData)
 
 proc serialize*(frame: GoAwayFrame): seq[byte] {.inline.} =
-  # Serializes GoAwayFrame.
+  ## Serializes GoAwayFrame.
   result = newSeqofCap[byte](9 + frame.headers.length)
   result.add frame.headers.serialize
 
@@ -36,9 +36,12 @@ proc serialize*(frame: GoAwayFrame): seq[byte] {.inline.} =
 
   result.add frame.debugData
 
-proc readGoAwayFrame*(stream: StringStream): GoAwayFrame {.inline.} =
-  # Reads GoAwayFrame.
-  result.headers = stream.readFrameHeaders
+proc read*(self: type[GoAwayFrame], headers: FrameHeaders, stream: StringStream): GoAwayFrame {.inline.} =
+  ## Reads GoAwayFrame.
+  
+  assert headers.frameType == FrameType.GoAway, "FrameType must be GoAway."
+  
+  result.headers = headers
 
   if result.headers.streamId != StreamId(0):
     raise newConnectionError(ErrorCode.Protocol, "The stream id of GoAway frame must be zero.")
@@ -57,4 +60,4 @@ proc readGoAwayFrame*(stream: StringStream): GoAwayFrame {.inline.} =
   if debugDataLen > 0:
     var debugData = newSeq[byte](debugDataLen)
     discard stream.readData(debugData[0].addr, debugDataLen)
-    result.debugData = debugData
+    result.debugData = move(debugData)

@@ -48,10 +48,10 @@ type
   # https://tools.ietf.org/html/rfc7540#section-4
 
   FrameHeaders* = object ## All frames begin with a fixed 9-octet headers.
-    length*: uint32 # 2 ^ 14 ~ 2 ^ 24 - 1
-    frameType*: FrameType
-    flag*: Flag
-    streamId*: StreamId
+    length: uint32 # 2 ^ 14 ~ 2 ^ 24 - 1
+    frameType: FrameType
+    flag: Flag
+    streamId: StreamId
 
   # Padding octets that contain no application semantic value.
   # Padding octets MUST be set to zero when sending. A receiver is
@@ -72,6 +72,18 @@ proc `==`*(self, other: StreamId): bool {.borrow.}
 proc serialize*(streamId: StreamId): array[4, byte] {.borrow.}
 proc `==`*(self, other: Padding): bool {.borrow.}
 
+
+proc `length`*(headers: FrameHeaders): uint32 {.inline.} =
+  headers.length
+
+proc `frameType`*(headers: FrameHeaders): FrameType {.inline.} =
+  headers.frameType
+
+proc `flag`*(headers: FrameHeaders): Flag {.inline.} =
+  headers.flag
+
+proc `streamId`*(headers: FrameHeaders): StreamId {.inline.} =
+  headers.streamId
 
 proc newConnectionError*(errorCode: ErrorCode, msg: string): ConnectionError {.inline.} =
   ## Creates a ConnectionError.

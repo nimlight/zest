@@ -17,108 +17,146 @@ import ./utils
 # padding
 block:
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
                                              @[1'u8, 2], padding = none(Padding))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
                                              @[1'u8, 2], padding = some(Padding(0)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
                                              @[1'u8, 2], padding = some(Padding(1)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(231), StreamId(781), 
                                              newSeq[byte](256), padding = some(Padding(255)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
 
 # SteamId
 block:
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(0), StreamId(781), 
+    doAssertRaises(ValueError):
+      discard initPushPromiseFrame(StreamId(0), StreamId(781), 
                                              @[1'u8, 2], padding = none(Padding))
 
-    doAssertRaises(ConnectionError):
-      discard promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame
-
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(1), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(1), StreamId(781), 
                                              @[1'u8, 2], padding = some(Padding(0)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(31), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(31), StreamId(781), 
                                              @[1'u8, 2], padding = some(Padding(1)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(high(uint32) shr 1), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(high(uint32) shr 1), StreamId(781), 
                                              newSeq[byte](256), padding = some(Padding(255)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
 
 # SteamId
 block:
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(10), StreamId(0), 
+    doAssertRaises(ValueError):
+      discard initPushPromiseFrame(StreamId(10), StreamId(0), 
                                              @[1'u8, 2], padding = none(Padding))
 
-    doAssertRaises(ConnectionError):
-      discard promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame
-
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(1), StreamId(1), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(1), StreamId(1), 
                                              @[1'u8, 2], padding = some(Padding(0)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(31), StreamId(781), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(31), StreamId(781), 
                                              @[1'u8, 2], padding = some(Padding(1)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(71), StreamId(high(uint32) shr 1), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(71), StreamId(high(uint32) shr 1), 
                                              newSeq[byte](256), padding = some(Padding(255)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
 
 # headerBlockFragment
 block:
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(10), StreamId(10), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(10), StreamId(10), 
                                              @[], padding = none(Padding))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(1), StreamId(1), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(1), StreamId(1), 
                                              @[1'u8], padding = some(Padding(0)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(31), StreamId(13), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(31), StreamId(13), 
                                              @[1'u8, 2, 3], padding = some(Padding(1)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame
 
   block:
-    let promisedFrame = initPushPromiseFrame(StreamId(71), StreamId(17), 
+    let 
+      promisedFrame = initPushPromiseFrame(StreamId(71), StreamId(17), 
                                              newSeq[byte](2569), padding = some(Padding(255)))
+      headers = promisedFrame.headers
 
-    doAssert promisedFrame.serialize.fromByteSeq.newStringStream.readPushPromiseFrame == promisedFrame
+    doAssert PushPromiseFrame.read(headers, promisedFrame.serialize[9 .. ^1].fromByteSeq
+                                                         .newStringStream) == promisedFrame

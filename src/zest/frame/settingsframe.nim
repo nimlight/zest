@@ -102,11 +102,13 @@ proc serialize*(frame: SettingsFrame): seq[byte] {.inline.} =
     result.add Settings.MaxHeaderListSize.uint16.serialize
     result.add frame.maxHeaderListSize.get.serialize
 
-proc readSettingsFrame*(stream: StringStream): SettingsFrame {.inline.} =
+proc read*(self: type[SettingsFrame], headers: FrameHeaders, stream: StringStream): SettingsFrame {.inline.} =
   ## Reads the fields of the SettingsFrame.
   
+  assert headers.frameType == FrameType.Settings, "FrameType must be SettingsStream."
+
   # read frame header
-  result.headers = stream.readFrameHeaders
+  result.headers = headers
 
   # SETTINGS frames always apply to a connection, never a single stream.
   # The stream identifier for a SETTINGS frame MUST be zero (0x0).  If an

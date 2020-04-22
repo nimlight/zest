@@ -13,13 +13,31 @@ type
     ## The SETTINGS frame (type=0x4) conveys configuration parameters that
     ## affect how endpoints communicate, such as preferences and constraints
     ## on peer behavior.
-    headerTableSize*: Option[uint32]
-    enablePush*: Option[bool]
-    maxConcurrentStreams*: Option[uint32]
-    initialWindowSize*: Option[uint32]
-    maxFrameSize*: Option[uint32]
-    maxHeaderListSize*: Option[uint32]
+    headerTableSize: Option[uint32]
+    enablePush: Option[bool]
+    maxConcurrentStreams: Option[uint32]
+    initialWindowSize: Option[uint32]
+    maxFrameSize: Option[uint32]
+    maxHeaderListSize: Option[uint32]
 
+
+proc `headerTableSize`*(frame: SettingsFrame): Option[uint32] {.inline.} =
+  frame.headerTableSize
+
+proc `enablePush`*(frame: SettingsFrame): Option[bool] {.inline.} =
+  frame.enablePush
+
+proc `maxConcurrentStreams`*(frame: SettingsFrame): Option[uint32] {.inline.} =
+  frame.maxConcurrentStreams
+
+proc `initialWindowSize`*(frame: SettingsFrame): Option[uint32] {.inline.} =
+  frame.initialWindowSize
+
+proc `maxFrameSize`*(frame: SettingsFrame): Option[uint32] {.inline.} =
+  frame.maxFrameSize
+
+proc `maxHeaderListSize`*(frame: SettingsFrame): Option[uint32] {.inline.} =
+  frame.maxHeaderListSize
 
 proc isAck*(flag: Flag): bool {.inline.} =
   # Whether contains ack flag.

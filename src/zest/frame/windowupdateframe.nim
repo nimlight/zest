@@ -6,8 +6,11 @@ type
   # |R|              Window Size Increment (31)                     |
   # +-+-------------------------------------------------------------+
   WindowUpdateFrame* = object of Frame
-    windowSizeIncrement*: uint32 # [1, 2^31-1] (2,147,483,647)
+    windowSizeIncrement: uint32 # [1, 2^31-1] (2,147,483,647)
 
+
+proc `windowSizeIncrement`*(frame: WindowUpdateFrame): uint32 {.inline.} =
+  frame.windowSizeIncrement
 
 proc initWindowUpdateFrame*(streamId: StreamId, 
                             windowSizeIncrement: uint32): WindowUpdateFrame {.inline.} =
@@ -30,8 +33,8 @@ proc serialize*(frame: WindowUpdateFrame): seq[byte] {.inline.} =
 proc read*(self: type[WindowUpdateFrame], headers: FrameHeaders, 
            stream: StringStream): WindowUpdateFrame {.inline.} =
   ## Reads WindowUpdateFrame.
+  
   result.headers = headers
-
 
   #  A WINDOW_UPDATE frame with a length other than 4 octets MUST be
   #  treated as a connection error (Section 5.4.1) of type

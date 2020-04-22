@@ -8,8 +8,11 @@ type
   # |                                                               |
   # +---------------------------------------------------------------+
   PingFrame* = object of Frame
-    opaqueData*: uint64
+    opaqueData: uint64
 
+
+proc `opaqueData`*(frame: PingFrame): uint64 {.inline.} =
+  frame.opaqueData
 
 proc initPingFrame*(hasAckFlag: bool, opaqueData: uint64): PingFrame {.inline.} =
   ## Initiates PingFrame.

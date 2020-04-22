@@ -14,10 +14,19 @@ type
   # |                           Padding (*)                       ...
   # +---------------------------------------------------------------+
   HeadersFrame* = object of Frame
-    padding*: Option[Padding]
-    priority*: Option[Priority]
-    headerBlockFragment*: seq[byte]
+    padding: Option[Padding]
+    priority: Option[Priority]
+    headerBlockFragment: seq[byte]
 
+
+proc `padding`*(frame: HeadersFrame): Option[Padding] {.inline.} =
+  frame.padding
+
+proc `priority`*(frame: HeadersFrame): Option[Priority] {.inline.} =
+  frame.priority
+
+proc `headerBlockFragment`*(frame: HeadersFrame): seq[byte] {.inline.} =
+  frame.headerBlockFragment
 
 proc initHeadersFrame*(streamId: StreamId, headerBlockFragment: seq[byte],
                        padding: Option[Padding], priority: Option[Priority], 

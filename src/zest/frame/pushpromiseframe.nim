@@ -12,10 +12,19 @@ type
   # |                           Padding (*)                       ...
   # +---------------------------------------------------------------+
   PushPromiseFrame* = object of Frame
-    padding*: Option[Padding]
-    promisedStreamID*: StreamId
-    headerBlockFragment*: seq[byte]
+    padding: Option[Padding]
+    promisedStreamID: StreamId
+    headerBlockFragment: seq[byte]
 
+
+proc `padding`*(frame: PushPromiseFrame): Option[Padding] {.inline.} =
+  frame.padding
+
+proc `promisedStreamID`*(frame: PushPromiseFrame): StreamId {.inline.} =
+  frame.promisedStreamID
+
+proc `headerBlockFragment`*(frame: PushPromiseFrame): seq[byte] {.inline.} =
+  frame.headerBlockFragment
 
 proc initPushPromiseFrame*(streamId: StreamId, promisedStreamId: StreamId, headerBlockFragment: seq[byte],
                        padding: Option[Padding], endHeaders = false): PushPromiseFrame {.inline.} =

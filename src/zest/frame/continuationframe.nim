@@ -6,7 +6,11 @@ type
   # |                   Header Block Fragment (*)                 ...
   # +---------------------------------------------------------------+
   ContinuationFrame* = object of Frame
-    headerBlockFragment*: seq[byte]
+    headerBlockFragment: seq[byte]
+
+
+proc `headerBlockFragment`*(frame: ContinuationFrame): seq[byte] {.inline.} =
+  frame.headerBlockFragment
 
 proc initContinuationFrame*(streamId: StreamId, headerBlockFragment: seq[byte], 
                             endHeaders = false): ContinuationFrame {.inline.} =

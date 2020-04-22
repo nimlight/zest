@@ -10,9 +10,19 @@ type
   # |                  Additional Debug Data (*)                    |
   # +---------------------------------------------------------------+
   GoAwayFrame* = object of Frame
-    lastStreamId*: StreamId
-    errorCode*: ErrorCode
-    debugData*: seq[byte]
+    lastStreamId: StreamId
+    errorCode: ErrorCode
+    debugData: seq[byte]
+
+
+proc `lastStreamId`*(frame: GoAwayFrame): StreamId {.inline.} =
+  frame.lastStreamId
+
+proc `errorCode`*(frame: GoAwayFrame): ErrorCode {.inline.} =
+  frame.errorCode
+
+proc `debugData`*(frame: GoAwayFrame): seq[byte] {.inline.} =
+  frame.debugData
 
 proc initGoAwayFrame*(lastStreamId: StreamId, errorCode: ErrorCode, debugData: seq[byte]): GoAwayFrame =
   ## Initiates GoAwayFrame

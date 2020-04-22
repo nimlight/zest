@@ -6,8 +6,10 @@ type
   # |                        Error Code (32)                        |
   # +---------------------------------------------------------------+
   RstStreamFrame* = object of Frame
-    errorCode*: ErrorCode
+    errorCode: ErrorCode
 
+proc `errorCode`*(frame: RstStreamFrame): ErrorCode {.inline.} =
+  frame.errorCode
 
 proc initRstStreamFrame*(streamId: StreamId, errorCode: ErrorCode): RstStreamFrame {.inline.} =
   ## Initiates RstStreamFrame.

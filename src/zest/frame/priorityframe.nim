@@ -8,8 +8,11 @@ type
   # |   Weight (8)  |
   # +-+-------------+
   PriorityFrame* = object of Frame
-    priority*: Priority
+    priority: Priority
 
+
+proc `priority`*(frame: PriorityFrame): Priority {.inline.} =
+  frame.priority
 
 proc initPriorityFrame*(streamId: StreamId, priority: Priority): PriorityFrame {.inline.} =
   ## Initiates PriorityFrame.

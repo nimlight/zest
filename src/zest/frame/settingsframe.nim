@@ -49,6 +49,7 @@ proc initSettingsFrame*(hasAckFlag: bool = false, headerTableSize = some(4096'u3
                         initialWindowSize = some(65_535'u32), maxFrameSize = some(16_384'u32),
                         maxHeaderListSize = none(uint32)): SettingsFrame =
   ## Initiates SettingsFrame.
+  
   if hasAckFlag:
     let headers = initFrameHeaders(length = 0'u32, frameType = FrameType.Settings,
                                   flag = FlagSettingsAck, streamId = StreamId(0))
@@ -66,13 +67,13 @@ proc initSettingsFrame*(hasAckFlag: bool = false, headerTableSize = some(4096'u3
     inc(length, 6)
 
   if initialWindowSize.isSome:
-    if initialWindowSize.get > MaxInitialWindowSize:
+    if initialWindowSize.get.int > MaxInitialWindowSize:
       raise newException(ValueError, "Values is above the maximum flow-control window size.")
 
     inc(length, 6)
 
   if maxFrameSize.isSome:
-    let size = maxFrameSize.get
+    let size = maxFrameSize.get.int
     if size < MaxDefaultFrameSize or size > MaxAllowedFrameSize:
       raise newException(ValueError, "Size must be between default and allowed frame size.")
     inc(length, 6)
@@ -91,7 +92,7 @@ proc initSettingsFrame*(hasAckFlag: bool = false, headerTableSize = some(4096'u3
 proc serialize*(frame: SettingsFrame): seq[byte] {.inline.} = 
   ## Serializes the fields of the SettingsFrame.
 
-  result = newSeqOfCap[byte](9 + frame.headers.length)
+  result = newSeqOfCap[byte](9 + frame.headers.length.int)
 
   # serialize frameHeaders.
   result.add frame.headers.serialize
@@ -184,13 +185,13 @@ proc read*(self: type[SettingsFrame], headers: FrameHeaders, stream: StringStrea
       # Values above the maximum flow-control window size of 2^31-1 MUST
       # be treated as a connection error (Section 5.4.1) of type
       # FLOW_CONTROL_ERROR.
-      if settingsValue > MaxInitialWindowSize:
+      if settingsValue.int > MaxInitialWindowSize:
         raise newConnectionError(ErrorCode.FlowControl, 
                                  "Values is above the maximum flow-control window size.")
       else:
         result.initialWindowSize = some(settingsValue)
     of 5'u16:
-      if settingsValue < MaxDefaultFrameSize or settingsValue > MaxAllowedFrameSize:
+      if settingsValue.int < MaxDefaultFrameSize or settingsValue.int > MaxAllowedFrameSize:
         raise newConnectionError(ErrorCode.Protocol, "Size must be between default and allowed frame size.")
       else:
         result.maxFrameSize = some(settingsValue)

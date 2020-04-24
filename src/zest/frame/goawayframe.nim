@@ -35,7 +35,7 @@ proc initGoAwayFrame*(lastStreamId: StreamId, errorCode: ErrorCode, debugData: s
 
 proc serialize*(frame: GoAwayFrame): seq[byte] {.inline.} =
   ## Serializes GoAwayFrame.
-  result = newSeqofCap[byte](9 + frame.headers.length)
+  result = newSeqofCap[byte](9 + frame.headers.length.int)
   result.add frame.headers.serialize
 
   var lastStreamId = frame.lastStreamId.uint32
@@ -48,7 +48,7 @@ proc serialize*(frame: GoAwayFrame): seq[byte] {.inline.} =
 
 proc read*(self: type[GoAwayFrame], headers: FrameHeaders, stream: StringStream): GoAwayFrame {.inline.} =
   ## Reads GoAwayFrame.
-  
+
   assert headers.frameType == FrameType.GoAway, "FrameType must be GoAway."
   
   result.headers = headers

@@ -59,7 +59,9 @@ proc initPushPromiseFrame*(streamId: StreamId, promisedStreamId: StreamId, heade
 
 proc readHeaderBlockFragment*(stream: StringStream, 
                               pushPromiseFrame: PushPromiseFrame): seq[byte] {.inline.} =
-  var 
+  ## Reads HeaderBlockFragment.
+  
+  var
     length = pushPromiseFrame.headers.length.int - 4
 
   if pushPromiseFrame.padding.isSome:
@@ -81,7 +83,7 @@ proc serialize*(frame: PushPromiseFrame): seq[byte] {.inline.} =
   ## Serializes the fields of the PushPromiseFrame.
   
   # headers + pad length(?) + promised StreamId + headerBlockFragment + Padding(?)
-  let length = 9 + frame.headers.length
+  let length = 9 + frame.headers.length.int
   result = newSeqOfCap[byte](length)
   result.add frame.headers.serialize
   if frame.padding.isSome:

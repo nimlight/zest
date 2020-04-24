@@ -31,7 +31,7 @@ proc initContinuationFrame*(streamId: StreamId, headerBlockFragment: seq[byte],
 
 proc serialize*(frame: ContinuationFrame): seq[byte] {.inline.} =
   ## Serializes ContinuationFrame.
-  result = newSeqOfCap[byte](9 + frame.headers.length)
+  result = newSeqOfCap[byte](9 + frame.headers.length.int)
 
   result.add frame.headers.serialize
   result.add frame.headerBlockFragment

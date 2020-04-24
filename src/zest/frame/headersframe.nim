@@ -64,6 +64,7 @@ proc initHeadersFrame*(streamId: StreamId, headerBlockFragment: seq[byte],
 
 proc readHeaderBlockFragment*(stream: StringStream, 
                               headersFrame: HeadersFrame): seq[byte] {.inline.} =
+  ## Reads HeaderBlockFragment.
   var 
     length = headersFrame.headers.length.int
 
@@ -87,7 +88,7 @@ proc serialize*(frame: HeadersFrame): seq[byte] {.inline.} =
   ## Serializes the fields of the HeadersFrame.
   
   # headers + pad length(?) + priority(?) + headerBlockFragment + Padding(?)
-  let length = 9 + frame.headers.length
+  let length = 9 + frame.headers.length.int
   result = newSeqOfCap[byte](length)
   result.add frame.headers.serialize
   if frame.padding.isSome:

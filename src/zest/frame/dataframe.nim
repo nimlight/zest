@@ -82,7 +82,7 @@ proc readPayload*(stream: StringStream, length: uint32, padLength: Option[Paddin
 proc serialize*(frame: DataFrame): seq[byte] {.inline.} = 
   ## Serializes the fields of the DataFrame.
 
-  let length = 9 + frame.headers.length
+  let length = 9 + frame.headers.length.int
   result = newSeqOfCap[byte](length)
   result.add frame.headers.serialize
   # headers + pad length(?) + payload + Padding(?)

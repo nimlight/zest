@@ -13,7 +13,7 @@ proc fromByteSeq*(sequence: openArray[byte]): string {.inline.} =
     copyMem(result.cstring, sequence[0].unsafeAddr, length)
 
 template castNumber(result, number: typed): untyped =
-  ## Cast ``number`` to array[byte] in big endians order.
+  ## Casts ``number`` to array[byte] in big endians order.
   when cpuEndian == bigEndian:
     cast[type(result)](number)
   else:

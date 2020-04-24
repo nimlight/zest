@@ -16,7 +16,7 @@ type
   # |                   Frame Payload (0...)                      ...
   # +---------------------------------------------------------------+
   # https://tools.ietf.org/html/rfc7540#section-4
-  Frame* = object of RootObj
+  Frame* = object of RootObj ## The base object of all frames
     headers*: FrameHeaders
 
 
@@ -56,7 +56,7 @@ template readPriorityInternal(stream: StringStream, headers: FrameHeaders): Opti
   some(priority)
 
 proc readPriority*(stream: StringStream, headers: FrameHeaders): Option[Priority] {.inline.} =
-  ## Reads priority
+  ## Reads priority.
   result = none(Priority)
   case headers.frameType
   of FrameType.Headers:
@@ -69,10 +69,11 @@ proc readPriority*(stream: StringStream, headers: FrameHeaders): Option[Priority
     raise FrameError(msg: "Frames shouldn't have priority.")
 
 proc readErrorCode*(stream: StringStream): ErrorCode {.inline.} =
-  # read frame ErrorCode
+  # Reads frame ErrorCode.
+
   let errorCode = stream.readBEUint32
 
-  if errorCode >= 14'u8:
+  if errorCode >= 14'u32:
     raise newStreamError(ErrorCode.Protocol, "Unknown ErrorCode.")
   else:
     result = ErrorCode(errorCode)

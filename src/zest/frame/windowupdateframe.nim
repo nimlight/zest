@@ -15,6 +15,7 @@ proc `windowSizeIncrement`*(frame: WindowUpdateFrame): uint32 {.inline.} =
 proc initWindowUpdateFrame*(streamId: StreamId, 
                             windowSizeIncrement: uint32): WindowUpdateFrame {.inline.} =
   ## Initiates WindowUpdateFrame.
+  
   let headers = initFrameHeaders(length = 4, frameType = FrameType.WindowUpdate, 
                                  flag = Flag(0), streamId = streamId)
   
@@ -33,7 +34,7 @@ proc serialize*(frame: WindowUpdateFrame): seq[byte] {.inline.} =
 proc read*(self: type[WindowUpdateFrame], headers: FrameHeaders, 
            stream: StringStream): WindowUpdateFrame {.inline.} =
   ## Reads WindowUpdateFrame.
-  
+
   result.headers = headers
 
   #  A WINDOW_UPDATE frame with a length other than 4 octets MUST be

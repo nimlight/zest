@@ -1,5 +1,5 @@
 import options, streams, bitops
-import ./errorcodes, ./flags, ./basetypes
+import ../base/errorcodes, ../base/flags, ./basetypes
 
 
 export errorcodes, flags, basetypes, options, streams, bitops

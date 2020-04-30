@@ -2,7 +2,7 @@ import frame / [dataframe, headersframe, priorityframe,
                 rststreamframe, settingsframe, pushpromiseframe, 
                 pingframe, goawayframe, windowupdateframe]
 
-import frame / [errorcodes, flags, basetypes]
+import base / [errorcodes, flags, basetypes]
 import streams
 
 

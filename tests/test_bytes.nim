@@ -7,7 +7,7 @@ discard """
   exitcode: 0
   timeout:  60.0
 """
-import ../src/zest/frame/bytes
+import ../src/zest/base/bytes
 
 
 import streams

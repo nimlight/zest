@@ -1,7 +1,7 @@
 import streams, bitops
 
 
-import ./flags, ./bytes, ./errorcodes
+import ../base/flags, ../base/bytes, ../base/errorcodes
 
 
 export flags, bytes

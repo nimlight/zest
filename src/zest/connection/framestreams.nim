@@ -1,4 +1,8 @@
 type
+  # H:  HEADERS frame (with implied CONTINUATIONs)
+  # PP: PUSH_PROMISE frame (with implied CONTINUATIONs)
+  # ES: END_STREAM flag
+  # R:  RST_STREAM frame
   StreamInputs* = enum
     SendHeaders,
     RecvHeaders,
@@ -10,7 +14,6 @@ type
     RecvRstStream
 
       #         The lifecycle of a stream is shown in Figure 2.
-
       #                           +--------+
       #                   send PP |        | recv PP
       #                  ,--------|  idle  |--------.

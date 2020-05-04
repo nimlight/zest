@@ -1,9 +1,17 @@
 # zest
-Http2 for Nim.
 
+Http2 protocol for Nim. 
+
+## Task
+
+- [x] Frame
+- [ ] Stream
+- [ ] Connection
+- [ ] Hpack
 
 ## Examples
 
+### Frames
 ```nim
 import zest
 

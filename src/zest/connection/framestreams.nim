@@ -21,12 +21,12 @@ type
     SendPushPromise,
     SendEndStream,
     SendRstStream,
-    ReceiveHeaders,
-    ReceiveContinuation,
-    ReceiveData,
-    ReceivePushPromise,
-    ReceiveEndStream,
-    ReceiveRstStream,
+    RecvHeaders,
+    RecvContinuation,
+    RecvData,
+    RecvPushPromise,
+    RecvEndStream,
+    RecvRstStream,
 
   ##         The lifecycle of a stream is shown in Figure 2.
   ##                           +--------+
@@ -74,3 +74,19 @@ type
     HalfClosedLocal,
     HalfClosedRemote,
     Closed
+
+  State* = object
+    streamState: StreamState
+
+proc fromIdle*(s: var State, inputs: StreamInputs) =
+  case inputs
+  of StreamInputs.SendHeaders:
+    s.streamState = Open
+  of StreamInputs.RecvHeaders:
+    s.streamState = Open
+  of StreamInputs.SendPushPromise:
+    s.streamState = ReversedLocal
+  of StreamInputs.RecvPushPromise:
+    s.streamState = ReversedRemote
+  else:
+    discard

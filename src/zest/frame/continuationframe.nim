@@ -57,6 +57,6 @@ proc read*(self: type[ContinuationFrame], headers: FrameHeaders,stream: StringSt
     if not canReadNBytes(stream, length):
       raise newConnectionError(ErrorCode.FrameSize, "Invalid Frame.")
 
-    var headerBlockFragment = newseq[byte](length)
+    var headerBlockFragment = newSeq[byte](length)
     discard stream.readData(headerBlockFragment[0].addr, length)
     result.headerBlockFragment = move(headerBlockFragment)

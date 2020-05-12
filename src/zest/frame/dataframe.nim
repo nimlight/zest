@@ -25,6 +25,13 @@ type
     payload: seq[byte]
 
 
+# The entire DATA frame payload is included in flow control, including the Pad
+# Length and Padding fields if present.
+proc `flowControlLength`*(frame: DataFrame): int {.inline.} =
+  ## Returns flow control length.
+  result = if frame.padding.isNone: frame.payload.len
+    else: 1 + frame.payload.len + frame.padding.get.int
+
 proc `padding`*(frame: DataFrame): Option[Padding] {.inline.} =
   frame.padding
 

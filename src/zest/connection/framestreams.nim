@@ -1,3 +1,6 @@
+import ../frame/basetypes
+
+
 type
   # H:  HEADERS frame (with implied CONTINUATIONs)
   # PP: PUSH_PROMISE frame (with implied CONTINUATIONs)
@@ -76,7 +79,12 @@ type
     Closed
 
   State* = object
-    streamState: StreamState
+    streamState*: StreamState
+
+  Stream* = object
+    id: StreamId
+    state: State
+
 
 proc fromIdle*(s: var State, inputs: StreamInputs) =
   case inputs
@@ -90,3 +98,20 @@ proc fromIdle*(s: var State, inputs: StreamInputs) =
     s.streamState = ReversedRemote
   else:
     discard
+
+proc fromReservedLocal*(s: var State, inputs: StreamInputs) =
+  case inputs
+  of StreamInputs.SendHeaders:
+    s.streamState = HalfClosedRemote
+  of StreamInputs.SendRstStream:
+    s.streamState = Closed
+  of StreamInputs.RecvRstStream:
+    s.streamState = Closed
+  else:
+    discard
+
+proc opened*(s: Stream): bool {.inline.} =
+  s.state.streamState in {Open, HalfClosedLocal, HalfClosedRemote}
+
+proc closed*(s: Stream): bool {.inline.} =
+  s.state.streamState == Closed

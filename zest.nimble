@@ -15,4 +15,4 @@ requires "hpack >= 0.2.0"
 
 
 task tests, "Run all tests":
-  exec "testament cat /"
+  exec "testament all"
